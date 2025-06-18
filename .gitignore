@@ -1,0 +1,111 @@
+# --- Vivado Project Ignore Rules ---
+
+# 1. Vivado Generated Directories
+# These contain synthesis/implementation results, simulation data, IP output products, cache, etc.
+# They can be large and should be regenerated from sources.
+*.cache/
+*.gen/
+*.runs/
+*.sim/
+*_base/
+work/
+# sim/
+*.hw/
+# Add similar patterns if you have multiple block designs or different source sets
+
+# 2. Vivado Generated Files
+*.log
+*.jou # Journal files (Vivado command history)
+*.str # Vivado crash status files
+*.rpt # Report files
+*.pb # Protocol buffer files (often implementation status)
+*.dcp # Design Checkpoints (can be very large)
+*.bit # Bitstream files
+*.bin # Binary programming files
+*.ltx # Logic Analyzer files
+*.mcs # PROM files
+*.prm # PROM files metadata
+*.wdb # Waveform Database files (Simulation results)
+*.wcfg # Waveform configuration files (often user-specific layouts)
+vivado*.backup.zip # Backup zip files created by Vivado
+vivado_pid*.zip # Vivado process ID related zip files (crash logs etc.)
+*.html # HTML reports
+*.xml # Various generated XML reports/metadata (be cautious, some might be needed, but often not)
+*.osv # Object files for VHDL simulation libraries (rarely needed in repo)
+*.mem # Memory initialization files generated during synthesis/implementation (keep source .coe or .mif)
+*.xsa
+
+# 3. Project File Backups
+*.xpr.zip # Project backup zip files
+*.xpr.bak # Project backup files
+
+# 4. Vitis / SDK Generated Files (if applicable)
+*vitis*/
+*.metadata/
+*_ide/
+*.launch
+Debug/
+Release/
+*.o
+*.d
+*.elf
+*.map
+*.gdbinit
+.sdk/
+*.sdk/
+*_bsp/
+*.sdklog
+*.bit
+*.hdf # Hardware Definition File (Legacy - use XSA)
+*.hwh # Hardware Handoff File (Legacy - use XSA)
+*.xsa # Xilinx Support Archive (Can be large, usually regenerated from Vivado project)
+*.elf # Executable files
+*.sw/ # Software project related generated files in Vitis
+
+# 5. Temporary & System Files
+*~
+*.swp
+*.bak
+*.stackdump
+webtalk*.log
+webtalk*.jou
+webtalk_*.zip
+.Xil/
+
+# 6. user generated files
+*modelsim_lib/
+*__pycache__/
+*k7_udp/
+*build/
+bitstream/
+reports/
+*.vscode/
+*temp/
+*inbox/
+*ethernet_com/*.md
+*serial/dist/
+*.dcp
+*.png
+*.rar
+*.str
+*.debug
+*.jou
+*.tar.gz
+*.wlf
+*.ini
+*.spec
+*.hex
+
+# --- Files to KEEP (Ensure these are NOT ignored) ---
+# Generally, you don't need explicit "keep" rules unless a pattern above
+# accidentally ignores something essential. The default is to keep files.
+# Example (if needed, unlikely for standard setups):
+# !important_config.xml
+
+# --- Best Practices Notes ---
+# - Keep your source files (*.vhd, *.v, *.sv)
+# - Keep your constraints files (*.xdc)
+# - Keep your IP customization files (*.xci)
+# - Keep your Block Design files (*.bd)
+# - Keep your project file (*.xpr) - Be mindful of merge conflicts on this!
+# - Consider using Tcl scripts to generate the project for better version control.
