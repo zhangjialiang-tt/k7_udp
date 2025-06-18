@@ -323,45 +323,96 @@ module top (
         .i_Rst_n  (~rst_int),
         .o_led    (led[1])
     );
-    fpga_core #(
-        .TARGET("XILINX")
-    ) core_inst (
-        /*
-     * Clock: 125MHz
-     * Synchronous reset
-     */
-        .clk        (clk_int),
-        .clk90      (clk90_int),
-        .rst        (rst_int),
-        /*
-     * GPIO
-     */
-        .btnu       (btnu_int),
-        .btnl       (btnl_int),
-        .btnd       (btnd_int),
-        .btnr       (btnr_int),
-        .btnc       (btnc_int),
-        .sw         (sw_int),
-        .led        (),
-        /*
-     * Ethernet: 1000BASE-T RGMII
-     */
+    // fpga_core #(
+    //     .TARGET("XILINX")
+    // ) core_inst (
+    //     /*
+    //  * Clock: 125MHz
+    //  * Synchronous reset
+    //  */
+    //     .clk        (clk_int),
+    //     .clk90      (clk90_int),
+    //     .rst        (rst_int),
+    //     /*
+    //  * GPIO
+    //  */
+    //     .btnu       (btnu_int),
+    //     .btnl       (btnl_int),
+    //     .btnd       (btnd_int),
+    //     .btnr       (btnr_int),
+    //     .btnc       (btnc_int),
+    //     .sw         (sw_int),
+    //     .led        (),
+    //     /*
+    //  * Ethernet: 1000BASE-T RGMII
+    //  */
+    //     .phy_rx_clk (phy2_rx_clk),
+    //     .phy_rxd    (phy2_rxd_delay),
+    //     .phy_rx_ctl (phy2_rx_ctl_delay),
+    //     .phy_tx_clk (phy2_tx_clk),
+    //     .phy_txd    (phy2_txd),
+    //     .phy_tx_ctl (phy2_tx_ctl),
+    //     .phy_reset_n(phy2_reset_n),
+    //     .phy_int_n  (  /*phy_int_n*/),
+    //     .phy_pme_n  (  /*phy_pme_n*/),
+    //     /*
+    //  * UART: 115200 bps, 8N1
+    //  */
+    //     .uart_rxd   (uart_rxd_int),
+    //     .uart_txd   (uart_txd)
+    // );
+    localparam SYS_FREQ = 125_000_000;
+    localparam AD7380_DIV_FREQ = 47;
+    localparam UPLOAD_RATE = 1;//1000;
+    reg  [31:0] cnt_1s = 32'd0;
+    reg  [31:0] cnt = 32'd0;
+    reg  [31:0] din_data_func;
+    wire        din_valid_func;
+    wire        din_last_func;
+    always @(posedge clk_int) begin
+        if (rst_int) cnt_1s <= 32'd0;
+        else if (cnt_1s == SYS_FREQ) cnt_1s <= 0;
+        else cnt_1s <= cnt_1s + 1;
+    end
+    always @(posedge clk_int) begin
+        if (rst_int) cnt <= 32'd0;
+        else if (cnt == AD7380_DIV_FREQ) cnt <= 0;
+        else cnt <= cnt + 1;
+    end
+    always @(posedge clk_int) begin
+        if (rst_int) din_data_func <= 32'd0;
+        else if (cnt_1s == SYS_FREQ) din_data_func <= 0;
+        else if (din_data_func == UPLOAD_RATE) din_data_func <= din_data_func;
+        else if (din_valid_func) din_data_func <= din_data_func + 1;
+        else din_data_func <= din_data_func;
+    end
+    assign din_valid_func = din_data_func<UPLOAD_RATE&& cnt == AD7380_DIV_FREQ;
+    assign din_last_func  = din_data_func<UPLOAD_RATE&& cnt== AD7380_DIV_FREQ;
+    udp_top #(
+        .TARGET("XILINX"),
+        .DATA_W(32)
+    ) udp_top_inst (
+        // user interface
+        .sys_clk  (clk_int),
+        .sys_rstn (~rst_int),
+        .din_data (din_data_func),
+        .din_valid(din_valid_func),
+        .din_last (din_last_func),
+
+        // clock and reset
+        .clk  (clk_int),
+        .clk90(clk90_int),
+        .rst  (rst_int),
+
+        // phy interface
         .phy_rx_clk (phy2_rx_clk),
         .phy_rxd    (phy2_rxd_delay),
         .phy_rx_ctl (phy2_rx_ctl_delay),
         .phy_tx_clk (phy2_tx_clk),
         .phy_txd    (phy2_txd),
         .phy_tx_ctl (phy2_tx_ctl),
-        .phy_reset_n(phy2_reset_n),
-        .phy_int_n  (  /*phy_int_n*/),
-        .phy_pme_n  (  /*phy_pme_n*/),
-        /*
-     * UART: 115200 bps, 8N1
-     */
-        .uart_rxd   (uart_rxd_int),
-        .uart_txd   (uart_txd)
+        .phy_reset_n(phy2_reset_n)
     );
-
 endmodule
 
 `resetall
