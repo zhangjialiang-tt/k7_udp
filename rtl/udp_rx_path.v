@@ -33,93 +33,77 @@ module udp_rx_path #(
     parameter DATA_W = 64  // 应用层数据位宽
 ) (
     // System/Application Clock Domain
-    input wire sys_clk,
-    input wire sys_rst,
-
+                            input  wire              sys_clk,
+                            input  wire              sys_rst,
     // Application Interface (sys_clk domain)
-    (*mark_debug = "true"*)output wire [DATA_W-1:0] dout_data,
-    (*mark_debug = "true"*)output wire              dout_valid,
-    (*mark_debug = "true"*)output wire              dout_last,
-    input  wire              dout_ready,
-
+    (*mark_debug = "true"*) output wire [DATA_W-1:0] dout_data,
+    (*mark_debug = "true"*) output wire              dout_valid,
+    (*mark_debug = "true"*) output wire              dout_last,
+                            input  wire              dout_ready,
     // Core Clock Domain
-    input wire clk,
-    input wire rst,
-
+                            input  wire              clk,
+                            input  wire              rst,
     // UDP Core Interface (clk domain)
-    output wire        rx_udp_hdr_ready,
-    input  wire        rx_udp_hdr_valid,
-    input  wire [47:0] rx_udp_eth_dest_mac,
-    input  wire [47:0] rx_udp_eth_src_mac,
-    input  wire [15:0] rx_udp_eth_type,
-    input  wire [ 3:0] rx_udp_ip_version,
-    input  wire [ 3:0] rx_udp_ip_ihl,
-    input  wire [ 5:0] rx_udp_ip_dscp,
-    input  wire [ 1:0] rx_udp_ip_ecn,
-    input  wire [15:0] rx_udp_ip_length,
-    input  wire [15:0] rx_udp_ip_identification,
-    input  wire [ 2:0] rx_udp_ip_flags,
-    input  wire [12:0] rx_udp_ip_fragment_offset,
-    input  wire [ 7:0] rx_udp_ip_ttl,
-    input  wire [ 7:0] rx_udp_ip_protocol,
-    input  wire [15:0] rx_udp_ip_header_checksum,
-    input  wire [31:0] rx_udp_ip_source_ip,
-    input  wire [31:0] rx_udp_ip_dest_ip,
-    input  wire [15:0] rx_udp_source_port,
-    input  wire [15:0] rx_udp_dest_port,
-    input  wire [15:0] rx_udp_length,
-    input  wire [15:0] rx_udp_checksum,
-    input  wire [ 7:0] rx_udp_payload_axis_tdata,
-    input  wire        rx_udp_payload_axis_tvalid,
-    output wire        rx_udp_payload_axis_tready,
-    input  wire        rx_udp_payload_axis_tlast,
-    input  wire        rx_udp_payload_axis_tuser,
-
+    (*mark_debug = "true"*) output wire              rx_udp_hdr_ready,
+    (*mark_debug = "true"*) input  wire              rx_udp_hdr_valid,
+    (*mark_debug = "true"*) input  wire [      31:0] rx_udp_ip_source_ip,
+    (*mark_debug = "true"*) input  wire [      31:0] rx_udp_ip_dest_ip,
+    (*mark_debug = "true"*) input  wire [      15:0] rx_udp_source_port,
+    (*mark_debug = "true"*) input  wire [      15:0] rx_udp_dest_port,
+    (*mark_debug = "true"*) input  wire [       7:0] rx_udp_payload_axis_tdata,
+    (*mark_debug = "true"*) input  wire              rx_udp_payload_axis_tvalid,
+    (*mark_debug = "true"*) output wire              rx_udp_payload_axis_tready,
+    (*mark_debug = "true"*) input  wire              rx_udp_payload_axis_tlast,
+    (*mark_debug = "true"*) input  wire              rx_udp_payload_axis_tuser,
     // Metadata output (sys_clk domain)
-    output wire [31:0] m_app_rx_src_ip,
-    output wire [15:0] m_app_rx_src_port,
-    output wire        m_app_rx_valid,
-
+    // (*mark_debug = "true"*) output wire [      31:0] m_app_rx_src_ip,
+    // (*mark_debug = "true"*) output wire [      15:0] m_app_rx_src_port,
+    // (*mark_debug = "true"*) output wire              m_app_rx_valid,
     // Configuration
-    input wire [31:0] local_ip,
-    input wire [31:0] dest_ip,
-    input wire [15:0] local_port,
-    input wire [15:0] dest_port
+    (*mark_debug = "true"*) input  wire [      31:0] local_ip,
+    (*mark_debug = "true"*) input  wire [      31:0] dest_ip,
+    (*mark_debug = "true"*) input  wire [      15:0] local_port,
+    (*mark_debug = "true"*) input  wire [      15:0] dest_port
 );
+    // Application-side state machine
+    localparam RX_APP_IDLE = 2'd0;
+    localparam RX_APP_PREP = 2'd1;
+    localparam RX_APP_COLLECT = 2'd2;
+    localparam RX_APP_OUTPUT = 2'd3;
+    localparam BYTES_PER_WORD = DATA_W / 8;
 
     // Internal AXI stream signals for RX path
-    wire [ 7:0] m_app_rx_axis_tdata;
-    wire        m_app_rx_axis_tvalid;
-    wire        m_app_rx_axis_tready;
-    wire        m_app_rx_axis_tlast;
+    (*mark_debug = "true"*)wire [       7:0] m_app_rx_axis_tdata;
+    (*mark_debug = "true"*)wire              m_app_rx_axis_tvalid;
+    (*mark_debug = "true"*)wire              m_app_rx_axis_tready;
+    (*mark_debug = "true"*)wire              m_app_rx_axis_tlast;
 
     // RX path FIFOs (Core -> App)
-    wire [ 7:0] rx_fifo_in_payload_axis_tdata;
-    wire        rx_fifo_in_payload_axis_tvalid;
-    wire        rx_fifo_in_payload_axis_tready;
-    wire        rx_fifo_in_payload_axis_tlast;
-    wire        rx_fifo_in_payload_axis_tuser;
-    wire [ 7:0] rx_fifo_out_payload_axis_tdata;
-    wire        rx_fifo_out_payload_axis_tvalid;
-    wire        rx_fifo_out_payload_axis_tready;
-    wire        rx_fifo_out_payload_axis_tlast;
+    (*mark_debug = "true"*)wire [       7:0] rx_fifo_in_payload_axis_tdata;
+    (*mark_debug = "true"*)wire              rx_fifo_in_payload_axis_tvalid;
+    (*mark_debug = "true"*)wire              rx_fifo_in_payload_axis_tready;
+    (*mark_debug = "true"*)wire              rx_fifo_in_payload_axis_tlast;
+    (*mark_debug = "true"*)wire              rx_fifo_in_payload_axis_tuser;
+    (*mark_debug = "true"*)wire [       7:0] rx_fifo_out_payload_axis_tdata;
+    (*mark_debug = "true"*)wire              rx_fifo_out_payload_axis_tvalid;
+    (*mark_debug = "true"*)wire              rx_fifo_out_payload_axis_tready;
+    (*mark_debug = "true"*)wire              rx_fifo_out_payload_axis_tlast;
 
-    // Metadata FIFO signals
-    wire [47:0] rx_meta_fifo_in_tdata;
-    wire        rx_meta_fifo_in_tvalid;
-    wire        rx_meta_fifo_in_tready;
-    wire [47:0] rx_meta_fifo_out_tdata;
-    wire        rx_meta_fifo_out_tvalid;
-    wire        rx_meta_fifo_out_tready;
+    (*mark_debug = "true"*)wire              packet_match;
+    (*mark_debug = "true"*)reg               rx_drop_packet_reg;
+    (*mark_debug = "true"*)reg               rx_packet_active_reg;
+    (*mark_debug = "true"*)reg  [DATA_W-1:0] rx_data_buffer;
+    (*mark_debug = "true"*)reg  [       3:0] rx_byte_index;
+    (*mark_debug = "true"*)reg  [       1:0] rx_app_state;
+    (*mark_debug = "true"*)reg               rx_output_valid;
+    (*mark_debug = "true"*)reg               rx_output_last;
 
     // ----------------------------------------------------------------
-    // Receive Path Control Logic
+    // Receive Path Control Logic (clk domain)
     // ----------------------------------------------------------------
-
-    // Filter incoming packets by destination port, source IP and source port
-    wire        packet_match = (rx_udp_dest_port == local_port) && (rx_udp_ip_source_ip == dest_ip) && (rx_udp_source_port == dest_port);
-    reg         rx_drop_packet_reg = 1'b0;
-    reg         rx_packet_active_reg = 1'b0;
+    // FIX: Added check for local IP address to correctly filter packets.
+    // Filter incoming packets by destination IP/port and source IP/port.
+    assign packet_match = (rx_udp_ip_dest_ip == local_ip) && (rx_udp_dest_port == local_port) && (rx_udp_ip_source_ip == dest_ip) && (rx_udp_source_port == dest_port);
 
     // Control logic in core clock domain (clk)
     always @(posedge clk) begin
@@ -127,121 +111,115 @@ module udp_rx_path #(
             rx_drop_packet_reg   <= 1'b0;
             rx_packet_active_reg <= 1'b0;
         end else begin
-            if (rx_udp_hdr_valid && !rx_packet_active_reg) begin
-                // New packet header arrived
-                if (packet_match && rx_meta_fifo_in_tready && rx_fifo_in_payload_axis_tready) begin
-                    // Packet matches and FIFOs are ready, accept the packet
+            // A new header has arrived (handshake between core and this module)
+            if (rx_udp_hdr_valid && rx_udp_hdr_ready) begin
+                // Check if packet should be accepted or dropped
+                if (packet_match && rx_fifo_in_payload_axis_tready) begin
+                    // Packet matches and FIFO is ready, accept the packet
                     rx_packet_active_reg <= 1'b1;
                     rx_drop_packet_reg   <= 1'b0;
                 end else begin
-                    // Drop the packet (does not match or FIFO full)
+                    // Drop the packet (mismatch, or FIFO not ready)
                     rx_packet_active_reg <= 1'b1;
                     rx_drop_packet_reg   <= 1'b1;
                 end
+                // A packet is being processed, check for end of packet
             end else if (rx_packet_active_reg && rx_udp_payload_axis_tvalid && rx_udp_payload_axis_tready && rx_udp_payload_axis_tlast) begin
-                // End of packet
+                // End of packet transaction
                 rx_packet_active_reg <= 1'b0;
                 rx_drop_packet_reg   <= 1'b0;
             end
         end
     end
 
-    assign rx_udp_hdr_ready = rx_udp_hdr_valid && !rx_packet_active_reg && packet_match && rx_meta_fifo_in_tready && rx_fifo_in_payload_axis_tready;
+    // FIX: Corrected hdr_ready logic to prevent deadlocks.
+    // We are ready for a new header if we are not currently processing a packet.
+    assign rx_udp_hdr_ready = !rx_packet_active_reg;
 
     // Connect UDP payload to Rx payload FIFO
     assign rx_fifo_in_payload_axis_tdata = rx_udp_payload_axis_tdata;
     assign rx_fifo_in_payload_axis_tvalid = rx_udp_payload_axis_tvalid && rx_packet_active_reg && !rx_drop_packet_reg;
-    assign rx_udp_payload_axis_tready = (!rx_packet_active_reg || rx_drop_packet_reg) ? 1'b1 : rx_fifo_in_payload_axis_tready;
     assign rx_fifo_in_payload_axis_tlast = rx_udp_payload_axis_tlast;
     assign rx_fifo_in_payload_axis_tuser = rx_udp_payload_axis_tuser;
 
-    // Connect metadata to Rx metadata FIFO
-    assign rx_meta_fifo_in_tdata = {rx_udp_ip_source_ip, rx_udp_source_port};
-    assign rx_meta_fifo_in_tvalid = rx_udp_hdr_ready;
+    // FIX: Rewrote tready logic for clarity.
+    // Be ready for payload if we are dropping the packet, or if we are accepting and the FIFO is ready.
+    assign rx_udp_payload_axis_tready = (rx_packet_active_reg && !rx_drop_packet_reg) ? rx_fifo_in_payload_axis_tready : 1'b1;
 
-    // Connect Rx FIFOs outputs to application interface
+
+    // Connect Rx FIFOs outputs to application interface logic
     assign m_app_rx_axis_tdata = rx_fifo_out_payload_axis_tdata;
     assign m_app_rx_axis_tvalid = rx_fifo_out_payload_axis_tvalid;
-    assign rx_fifo_out_payload_axis_tready = m_app_rx_axis_tready;
     assign m_app_rx_axis_tlast = rx_fifo_out_payload_axis_tlast;
-
-    // Metadata is valid when payload is valid. Read metadata at the end of the packet.
-    assign {m_app_rx_src_ip, m_app_rx_src_port} = rx_meta_fifo_out_tdata;
-    assign m_app_rx_valid = rx_meta_fifo_out_tvalid;
-    assign rx_meta_fifo_out_tready = m_app_rx_axis_tready && m_app_rx_axis_tvalid && m_app_rx_axis_tlast;
+    assign rx_fifo_out_payload_axis_tready = m_app_rx_axis_tready;
 
     // ----------------------------------------------------------------
-    // RX 路径: internal AXI-Stream -> dout_*
+    // RX Path: internal AXI-Stream -> dout_* (sys_clk domain)
     // ----------------------------------------------------------------
-
-    reg [DATA_W-1:0] rx_data_buffer;
-    reg [       3:0] rx_byte_index;
-
-    // dout接口控制
     assign dout_data = rx_data_buffer;
-
-    // 接收状态机
-    localparam RX_APP_IDLE = 2'd0, RX_APP_COLLECT = 2'd1, RX_APP_OUTPUT = 2'd2;
-
-    reg [1:0] rx_app_state;
-    reg       rx_output_valid;
-    reg       rx_output_last;
-
     assign dout_valid = rx_output_valid;
     assign dout_last = rx_output_last;
+    // Pull data from the async FIFO only when in the COLLECT state.
     assign m_app_rx_axis_tready = (rx_app_state == RX_APP_COLLECT);
 
-    // 计算总字节数 - 这依赖于DATA_W的位宽
-    wire [15:0] bytes_per_word = DATA_W / 8;
-
+    // Application-side state machine
     always @(posedge sys_clk) begin
         if (sys_rst) begin
-            rx_app_state <= RX_APP_IDLE;
-            rx_byte_index <= 4'd0;
+            rx_app_state    <= RX_APP_IDLE;
+            rx_byte_index   <= 4'd0;
             rx_output_valid <= 1'b0;
-            rx_output_last <= 1'b0;
+            rx_output_last  <= 1'b0;
+            rx_data_buffer  <= {DATA_W{1'b0}};
         end else begin
-            // 默认清除输出有效标志
-            rx_output_valid <= 1'b0;
-
             case (rx_app_state)
                 RX_APP_IDLE: begin
-                    // 检测有新数据到达
+                    // Wait for data to arrive in FIFO
                     if (m_app_rx_axis_tvalid) begin
-                        rx_app_state  <= RX_APP_COLLECT;
-                        rx_byte_index <= 4'd0;
+                        rx_app_state <= RX_APP_PREP;
                     end
                 end
 
+                RX_APP_PREP: begin
+                    // Prepare for a new word: clear buffer and index
+                    rx_data_buffer <= {DATA_W{1'b0}};
+                    rx_byte_index  <= 4'd0;
+                    rx_app_state   <= RX_APP_COLLECT;
+                end
+
                 RX_APP_COLLECT: begin
+                    // Ready to accept bytes from FIFO
                     if (m_app_rx_axis_tvalid && m_app_rx_axis_tready) begin
-                        // 收集字节数据
+                        // Collect one byte of data
                         rx_data_buffer[8*rx_byte_index+:8] <= m_app_rx_axis_tdata;
 
-                        // 移动到下一个字节
-                        if (rx_byte_index == bytes_per_word - 1 || m_app_rx_axis_tlast) begin
-                            rx_byte_index <= 4'd0;
+                        // If word is full or packet ends, move to output
+                        if (rx_byte_index == BYTES_PER_WORD - 1 || m_app_rx_axis_tlast) begin
                             rx_output_valid <= 1'b1;
-                            rx_output_last <= m_app_rx_axis_tlast;
-                            rx_app_state <= RX_APP_OUTPUT;
+                            rx_output_last  <= m_app_rx_axis_tlast;
+                            rx_app_state    <= RX_APP_OUTPUT;
                         end else begin
+                            // Move to the next byte
                             rx_byte_index <= rx_byte_index + 1;
                         end
                     end
                 end
 
                 RX_APP_OUTPUT: begin
-                    // 等待应用层接收完成
+                    // Data is valid, wait for application to accept it
                     if (dout_ready) begin
+                        // Application has taken the data, de-assert valid
+                        rx_output_valid <= 1'b0;
                         if (rx_output_last) begin
+                            // End of packet, go back to idle
                             rx_app_state <= RX_APP_IDLE;
                         end else begin
-                            rx_app_state <= RX_APP_COLLECT;
+                            // More data for this packet, prepare for next word
+                            rx_app_state <= RX_APP_PREP;
                         end
-                        rx_output_valid <= 1'b0;
                     end else begin
-                        // 保持输出有效直到被接收
+                        // Application not ready, hold data and valid signal
                         rx_output_valid <= 1'b1;
+                        // rx_output_last is a register and will hold its value
                     end
                 end
             endcase
@@ -280,49 +258,6 @@ module udp_rx_path #(
         .m_axis_tvalid        (rx_fifo_out_payload_axis_tvalid),
         .m_axis_tready        (rx_fifo_out_payload_axis_tready),
         .m_axis_tlast         (rx_fifo_out_payload_axis_tlast),
-        .m_axis_tid           (),
-        .m_axis_tdest         (),
-        .m_axis_tuser         (),
-        .s_status_depth       (),
-        .s_status_depth_commit(),
-        .s_status_overflow    (),
-        .s_status_bad_frame   (),
-        .s_status_good_frame  (),
-        .m_status_depth       (),
-        .m_status_depth_commit(),
-        .m_status_overflow    (),
-        .m_status_bad_frame   (),
-        .m_status_good_frame  ()
-    );
-
-    // RX Metadata FIFO: Core (clk) -> App (sys_clk)
-    axis_async_fifo #(
-        .DEPTH(16),
-        .DATA_WIDTH(48),  // 32-bit IP + 16-bit port
-        .KEEP_ENABLE(0),
-        .LAST_ENABLE(0),
-        .ID_ENABLE(0),
-        .DEST_ENABLE(0),
-        .USER_ENABLE(0),
-        .FRAME_FIFO(0)
-    ) rx_metadata_fifo (
-        .s_clk                (clk),
-        .s_rst                (rst),
-        .s_axis_tdata         (rx_meta_fifo_in_tdata),
-        .s_axis_tkeep         (1'b1),
-        .s_axis_tvalid        (rx_meta_fifo_in_tvalid),
-        .s_axis_tready        (rx_meta_fifo_in_tready),
-        .s_axis_tlast         (1'b1),
-        .s_axis_tid           (0),
-        .s_axis_tdest         (0),
-        .s_axis_tuser         (0),
-        .m_clk                (sys_clk),
-        .m_rst                (sys_rst),
-        .m_axis_tdata         (rx_meta_fifo_out_tdata),
-        .m_axis_tkeep         (),
-        .m_axis_tvalid        (rx_meta_fifo_out_tvalid),
-        .m_axis_tready        (rx_meta_fifo_out_tready),
-        .m_axis_tlast         (),
         .m_axis_tid           (),
         .m_axis_tdest         (),
         .m_axis_tuser         (),

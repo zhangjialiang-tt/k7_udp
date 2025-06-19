@@ -28,9 +28,9 @@ vlog -work work $AXIS/axis_async_fifo.v
 vsim -t ns -voptargs=+acc work.tb_udp_tx_path
 
 # Load wave configuration from wave.do
-do wave.do
+do wave2.do
 # do wave_ghe.do
 
 #9.run
 # temp
-run 4000ns
+run 5000ns

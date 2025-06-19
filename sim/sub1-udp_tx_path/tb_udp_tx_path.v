@@ -47,7 +47,14 @@ module tb_udp_tx_path;
     reg     [      31:0] dest_ip;
     reg     [      15:0] local_port;
     reg     [      15:0] dest_port;
-
+    localparam SYS_FREQ = 125_0;
+    localparam AD7380_DIV_FREQ = 47;
+    localparam UPLOAD_RATE = 10;
+    reg  [DATA_W-1:0] cnt_1s = {DATA_W{1'b0}};
+    reg  [DATA_W-1:0] cnt = {DATA_W{1'b0}};
+    reg  [DATA_W-1:0] din_data_func;
+    wire        din_valid_func;
+    wire        din_last_func;
     // Testbench internal signals
     reg     [DATA_W-1:0] tb_packet_mem              [0:MAX_PACKET_WORDS-1];
     reg                  apply_backpressure;
@@ -60,9 +67,9 @@ module tb_udp_tx_path;
         // System/Application Clock Domain
         .sys_clk  (sys_clk),
         .sys_rst  (sys_rst),
-        .din_data (din_data),
-        .din_valid(din_valid),
-        .din_last (din_last),
+        .din_data (din_data_func),
+        .din_valid(din_valid_func),
+        .din_last (din_last_func),
         .din_ready(din_ready),
 
         // Core Clock Domain
@@ -99,7 +106,7 @@ module tb_udp_tx_path;
     end
 
     initial begin
-        clk = 1'b1;  // Start with a phase shift
+        clk = 1'b0;  // Start with a phase shift
         forever #(CORE_CLK_PERIOD / 2) clk = ~clk;
     end
 
@@ -263,14 +270,7 @@ module tb_udp_tx_path;
     //**********************************************************************************************
     //function
     //**********************************************************************************************
-    localparam SYS_FREQ = 125_0;
-    localparam AD7380_DIV_FREQ = 47;
-    localparam UPLOAD_RATE = 10;
-    reg  [31:0] cnt_1s = 32'd0;
-    reg  [31:0] cnt = 32'd0;
-    reg  [31:0] din_data_func;
-    wire        din_valid_func;
-    wire        din_last_func;
+
     always @(posedge clk) begin
         if (rst) cnt_1s <= 32'd0;
         else if (cnt_1s == SYS_FREQ) cnt_1s <= 0;
@@ -278,7 +278,7 @@ module tb_udp_tx_path;
     end
     always @(posedge clk) begin
         if (rst) cnt <= 32'd0;
-        else if (cnt == AD7380_DIV_FREQ) cnt <= 0;
+        else if (cnt == AD7380_DIV_FREQ-1) cnt <= 0;
         else cnt <= cnt + 1;
     end
     always @(posedge clk) begin
@@ -288,8 +288,8 @@ module tb_udp_tx_path;
         else if (din_valid_func) din_data_func <= din_data_func + 1;
         else din_data_func <= din_data_func;
     end
-    assign din_valid_func = din_data_func<UPLOAD_RATE&& cnt == AD7380_DIV_FREQ;
-    assign din_last_func  = din_data_func<UPLOAD_RATE&& cnt== AD7380_DIV_FREQ;
+    assign din_valid_func = din_data_func<UPLOAD_RATE&& cnt == AD7380_DIV_FREQ-1;
+    assign din_last_func  = din_data_func==UPLOAD_RATE-1&& cnt== AD7380_DIV_FREQ-1;
 endmodule
 
 `default_nettype wire

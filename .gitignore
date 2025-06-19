@@ -95,6 +95,7 @@ reports/
 *.ini
 *.spec
 *.hex
+*.roo/
 
 # --- Files to KEEP (Ensure these are NOT ignored) ---
 # Generally, you don't need explicit "keep" rules unless a pattern above

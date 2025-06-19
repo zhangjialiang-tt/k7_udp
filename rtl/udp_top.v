@@ -34,7 +34,7 @@ module udp_top #(
     parameter LOCAL_IP   = {8'd192, 8'd168, 8'd1, 8'd128},  // 192.168.1.128
     parameter LOCAL_PORT = 16'd1234,                        // 监听端口
     parameter DEST_IP    = {8'd192, 8'd168, 8'd1, 8'd129},  // 192.168.1.129
-    parameter DEST_PORT  = 16'd5678,                        // 目标端口号
+    parameter DEST_PORT  = 16'd1234,                        // 目标端口号
     parameter DATA_W     = 64                               // 应用层数据位宽
 ) (
     // System/Application Clock Domain
@@ -79,33 +79,33 @@ module udp_top #(
     wire        m_app_rx_valid;
 
     // UDP frame connections between core and path modules
-    wire        rx_udp_hdr_valid;
-    wire        rx_udp_hdr_ready;
-    wire [47:0] rx_udp_eth_dest_mac;
-    wire [47:0] rx_udp_eth_src_mac;
-    wire [15:0] rx_udp_eth_type;
-    wire [ 3:0] rx_udp_ip_version;
-    wire [ 3:0] rx_udp_ip_ihl;
-    wire [ 5:0] rx_udp_ip_dscp;
-    wire [ 1:0] rx_udp_ip_ecn;
-    wire [15:0] rx_udp_ip_length;
-    wire [15:0] rx_udp_ip_identification;
-    wire [ 2:0] rx_udp_ip_flags;
-    wire [12:0] rx_udp_ip_fragment_offset;
-    wire [ 7:0] rx_udp_ip_ttl;
-    wire [ 7:0] rx_udp_ip_protocol;
-    wire [15:0] rx_udp_ip_header_checksum;
-    wire [31:0] rx_udp_ip_source_ip;
-    wire [31:0] rx_udp_ip_dest_ip;
-    wire [15:0] rx_udp_source_port;
-    wire [15:0] rx_udp_dest_port;
-    wire [15:0] rx_udp_length;
-    wire [15:0] rx_udp_checksum;
-    wire [ 7:0] rx_udp_payload_axis_tdata;
-    wire        rx_udp_payload_axis_tvalid;
-    wire        rx_udp_payload_axis_tready;
-    wire        rx_udp_payload_axis_tlast;
-    wire        rx_udp_payload_axis_tuser;
+    (*mark_debug = "false"*)wire        rx_udp_hdr_valid;
+    (*mark_debug = "false"*)wire        rx_udp_hdr_ready;
+    (*mark_debug = "false"*)wire [47:0] rx_udp_eth_dest_mac;
+    (*mark_debug = "false"*)wire [47:0] rx_udp_eth_src_mac;
+    (*mark_debug = "false"*)wire [15:0] rx_udp_eth_type;
+    (*mark_debug = "false"*)wire [ 3:0] rx_udp_ip_version;
+    (*mark_debug = "false"*)wire [ 3:0] rx_udp_ip_ihl;
+    (*mark_debug = "false"*)wire [ 5:0] rx_udp_ip_dscp;
+    (*mark_debug = "false"*)wire [ 1:0] rx_udp_ip_ecn;
+    (*mark_debug = "false"*)wire [15:0] rx_udp_ip_length;
+    (*mark_debug = "false"*)wire [15:0] rx_udp_ip_identification;
+    (*mark_debug = "false"*)wire [ 2:0] rx_udp_ip_flags;
+    (*mark_debug = "false"*)wire [12:0] rx_udp_ip_fragment_offset;
+    (*mark_debug = "false"*)wire [ 7:0] rx_udp_ip_ttl;
+    (*mark_debug = "false"*)wire [ 7:0] rx_udp_ip_protocol;
+    (*mark_debug = "false"*)wire [15:0] rx_udp_ip_header_checksum;
+    (*mark_debug = "false"*)wire [31:0] rx_udp_ip_source_ip;
+    (*mark_debug = "false"*)wire [31:0] rx_udp_ip_dest_ip;
+    (*mark_debug = "false"*)wire [15:0] rx_udp_source_port;
+    (*mark_debug = "false"*)wire [15:0] rx_udp_dest_port;
+    (*mark_debug = "false"*)wire [15:0] rx_udp_length;
+    (*mark_debug = "false"*)wire [15:0] rx_udp_checksum;
+    (*mark_debug = "false"*)wire [ 7:0] rx_udp_payload_axis_tdata;
+    (*mark_debug = "false"*)wire        rx_udp_payload_axis_tvalid;
+    (*mark_debug = "false"*)wire        rx_udp_payload_axis_tready;
+    (*mark_debug = "false"*)wire        rx_udp_payload_axis_tlast;
+    (*mark_debug = "false"*)wire        rx_udp_payload_axis_tuser;
 
     wire        tx_udp_hdr_valid;
     wire        tx_udp_hdr_ready;
@@ -260,26 +260,10 @@ module udp_top #(
         // UDP Core Interface (clk domain)
         .rx_udp_hdr_valid          (rx_udp_hdr_valid),
         .rx_udp_hdr_ready          (rx_udp_hdr_ready),
-        .rx_udp_eth_dest_mac       (rx_udp_eth_dest_mac),
-        .rx_udp_eth_src_mac        (rx_udp_eth_src_mac),
-        .rx_udp_eth_type           (rx_udp_eth_type),
-        .rx_udp_ip_version         (rx_udp_ip_version),
-        .rx_udp_ip_ihl             (rx_udp_ip_ihl),
-        .rx_udp_ip_dscp            (rx_udp_ip_dscp),
-        .rx_udp_ip_ecn             (rx_udp_ip_ecn),
-        .rx_udp_ip_length          (rx_udp_ip_length),
-        .rx_udp_ip_identification  (rx_udp_ip_identification),
-        .rx_udp_ip_flags           (rx_udp_ip_flags),
-        .rx_udp_ip_fragment_offset (rx_udp_ip_fragment_offset),
-        .rx_udp_ip_ttl             (rx_udp_ip_ttl),
-        .rx_udp_ip_protocol        (rx_udp_ip_protocol),
-        .rx_udp_ip_header_checksum (rx_udp_ip_header_checksum),
         .rx_udp_ip_source_ip       (rx_udp_ip_source_ip),
         .rx_udp_ip_dest_ip         (rx_udp_ip_dest_ip),
         .rx_udp_source_port        (rx_udp_source_port),
         .rx_udp_dest_port          (rx_udp_dest_port),
-        .rx_udp_length             (rx_udp_length),
-        .rx_udp_checksum           (rx_udp_checksum),
         .rx_udp_payload_axis_tdata (rx_udp_payload_axis_tdata),
         .rx_udp_payload_axis_tvalid(rx_udp_payload_axis_tvalid),
         .rx_udp_payload_axis_tready(rx_udp_payload_axis_tready),
@@ -287,9 +271,9 @@ module udp_top #(
         .rx_udp_payload_axis_tuser (rx_udp_payload_axis_tuser),
 
         // Metadata output (sys_clk domain)
-        .m_app_rx_src_ip  (m_app_rx_src_ip),
-        .m_app_rx_src_port(m_app_rx_src_port),
-        .m_app_rx_valid   (m_app_rx_valid),
+        // .m_app_rx_src_ip  (m_app_rx_src_ip),
+        // .m_app_rx_src_port(m_app_rx_src_port),
+        // .m_app_rx_valid   (m_app_rx_valid),
 
         // Configuration
         .local_ip  (LOCAL_IP),

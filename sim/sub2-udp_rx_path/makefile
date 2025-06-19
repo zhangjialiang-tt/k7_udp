@@ -10,5 +10,5 @@ sim:
 clean:
 	@echo "INFO: Cleaning project directory..."
 	rm -rf ${PROJECT_DIR}
-	rm -rf *.vcd *.wlf *.result transcript transcript
+	rm -rf *.vcd *.wlf wlf* *.result transcript transcript
 	@echo "INFO: Clean finished."

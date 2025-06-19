@@ -363,12 +363,18 @@ module top (
     // );
     localparam SYS_FREQ = 125_000_000;
     localparam AD7380_DIV_FREQ = 47;
-    localparam UPLOAD_RATE = 1;//1000;
-    reg  [31:0] cnt_1s = 32'd0;
-    reg  [31:0] cnt = 32'd0;
-    reg  [31:0] din_data_func;
-    wire        din_valid_func;
-    wire        din_last_func;
+    localparam UPLOAD_RATE = 10;
+    (*mark_debug = "false"*)reg  [31:0] cnt_1s = 32'd0;
+    (*mark_debug = "false"*)reg  [31:0] cnt = 32'd0;
+    (*mark_debug = "false"*)reg  [31:0] din_data_func;
+    (*mark_debug = "false"*)wire        din_valid_func;
+    (*mark_debug = "false"*)wire        din_last_func;
+    
+    (*mark_debug = "false"*)wire        dout_ready_func;
+    (*mark_debug = "false"*)wire  [31:0] dout_data_func;
+    (*mark_debug = "false"*)wire        dout_valid_func;
+    (*mark_debug = "false"*)wire        dout_last_func;
+
     always @(posedge clk_int) begin
         if (rst_int) cnt_1s <= 32'd0;
         else if (cnt_1s == SYS_FREQ) cnt_1s <= 0;
@@ -376,7 +382,8 @@ module top (
     end
     always @(posedge clk_int) begin
         if (rst_int) cnt <= 32'd0;
-        else if (cnt == AD7380_DIV_FREQ) cnt <= 0;
+        else if (cnt_1s == SYS_FREQ) cnt <= 0;
+        else if (cnt == AD7380_DIV_FREQ-1) cnt <= 0;
         else cnt <= cnt + 1;
     end
     always @(posedge clk_int) begin
@@ -386,8 +393,25 @@ module top (
         else if (din_valid_func) din_data_func <= din_data_func + 1;
         else din_data_func <= din_data_func;
     end
-    assign din_valid_func = din_data_func<UPLOAD_RATE&& cnt == AD7380_DIV_FREQ;
-    assign din_last_func  = din_data_func<UPLOAD_RATE&& cnt== AD7380_DIV_FREQ;
+    assign din_valid_func = din_data_func<UPLOAD_RATE&& cnt == AD7380_DIV_FREQ-1;
+    assign din_last_func  = din_data_func==UPLOAD_RATE-1&& cnt== AD7380_DIV_FREQ-1;
+    // fpga_core #(
+    //     .TARGET("XILINX")
+    // ) udp_top_inst (
+    //     // clock and reset
+    //     .clk  (clk_int),
+    //     .clk90(clk90_int),
+    //     .rst  (rst_int),
+
+    //     // phy interface
+    //     .phy_rx_clk (phy2_rx_clk),
+    //     .phy_rxd    (phy2_rxd_delay),
+    //     .phy_rx_ctl (phy2_rx_ctl_delay),
+    //     .phy_tx_clk (phy2_tx_clk),
+    //     .phy_txd    (phy2_txd),
+    //     .phy_tx_ctl (phy2_tx_ctl),
+    //     .phy_reset_n(phy2_reset_n)
+    // );
     udp_top #(
         .TARGET("XILINX"),
         .DATA_W(32)
@@ -398,6 +422,10 @@ module top (
         .din_data (din_data_func),
         .din_valid(din_valid_func),
         .din_last (din_last_func),
+        .dout_data (dout_data_func),
+        .dout_valid (dout_valid_func),
+        .dout_last (dout_last_func),
+        .dout_ready (1),
 
         // clock and reset
         .clk  (clk_int),
