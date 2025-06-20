@@ -126,6 +126,10 @@ add_files -fileset sources_1 -norecurse [list \
 [file normalize "${origin_dir}/rtl/led_blink.v"] \
 [file normalize "${origin_dir}/rtl/debounce_switch.v"] \
 [file normalize "${origin_dir}/rtl/sync_signal.v"] \
+[file normalize "${origin_dir}/rtl/udp_top.v"] \
+[file normalize "${origin_dir}/rtl/udp_core.v"] \
+[file normalize "${origin_dir}/rtl/udp_rx_path.v"] \
+[file normalize "${origin_dir}/rtl/udp_tx_path.v"] \
   [file normalize "${origin_dir}/rtl/axis/arbiter.v"] \
   [file normalize "${origin_dir}/rtl/axis/axis_adapter.v"] \
   [file normalize "${origin_dir}/rtl/axis/axis_arb_mux.v"] \

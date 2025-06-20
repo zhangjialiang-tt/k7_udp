@@ -17,6 +17,6 @@ set_false_path -from [get_ports uart_rxd]
 set_input_delay 0.000 [get_ports uart_rxd]
 
 
-set_false_path -from [get_ports {btnu btnl btnd btnr btnc}]
-set_input_delay 0.000 [get_ports {btnu btnl btnd btnr btnc}]
+# set_false_path -from [get_ports {btnu btnl btnd btnr btnc}]
+# set_input_delay 0.000 [get_ports {btnu btnl btnd btnr btnc}]
 

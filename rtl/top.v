@@ -40,11 +40,11 @@ module top (
     /*
      * GPIO
      */
-    input  wire       btnu,
-    input  wire       btnl,
-    input  wire       btnd,
-    input  wire       btnr,
-    input  wire       btnc,
+    // input  wire       btnu,
+    // input  wire       btnl,
+    // input  wire       btnd,
+    // input  wire       btnr,
+    // input  wire       btnc,
     // input  wire [7:0] sw,
     output wire [7:0] led,
 
@@ -191,16 +191,16 @@ module top (
     wire [7:0] sw;
     wire [7:0] sw_int;
     assign sw = 8'd0;
-    debounce_switch #(
-        .WIDTH(13),
-        .N(4),
-        .RATE(125000)
-    ) debounce_switch_inst (
-        .clk(clk_int),
-        .rst(rst_int),
-        .in ({btnu, btnl, btnd, btnr, btnc, sw}),
-        .out({btnu_int, btnl_int, btnd_int, btnr_int, btnc_int, sw_int})
-    );
+    // debounce_switch #(
+    //     .WIDTH(13),
+    //     .N(4),
+    //     .RATE(125000)
+    // ) debounce_switch_inst (
+    //     .clk(clk_int),
+    //     .rst(rst_int),
+    //     .in ({btnu, btnl, btnd, btnr, btnc, sw}),
+    //     .out({btnu_int, btnl_int, btnd_int, btnr_int, btnc_int, sw_int})
+    // );
 
     wire uart_rxd_int;
 
@@ -315,14 +315,14 @@ module top (
         .i_Rst_n  (~rst_int),
         .o_led    (led[0])
     );
-    led_blink #(
-        .LED_NUM (1),
-        .STS_FREQ(125_000_000)
-    ) led1_blink_inst (
-        .i_Sys_clk(clk90_int),
-        .i_Rst_n  (~rst_int),
-        .o_led    (led[1])
-    );
+    // led_blink #(
+    //     .LED_NUM (1),
+    //     .STS_FREQ(125_000_000)
+    // ) led1_blink_inst (
+    //     .i_Sys_clk(clk90_int),
+    //     .i_Rst_n  (~rst_int),
+    //     .o_led    (led[1])
+    // );
     // fpga_core #(
     //     .TARGET("XILINX")
     // ) core_inst (
@@ -369,9 +369,9 @@ module top (
     (*mark_debug = "false"*)reg  [31:0] din_data_func;
     (*mark_debug = "false"*)wire        din_valid_func;
     (*mark_debug = "false"*)wire        din_last_func;
-    
+
     (*mark_debug = "false"*)wire        dout_ready_func;
-    (*mark_debug = "false"*)wire  [31:0] dout_data_func;
+    (*mark_debug = "false"*)wire [31:0] dout_data_func;
     (*mark_debug = "false"*)wire        dout_valid_func;
     (*mark_debug = "false"*)wire        dout_last_func;
 
@@ -383,7 +383,7 @@ module top (
     always @(posedge clk_int) begin
         if (rst_int) cnt <= 32'd0;
         else if (cnt_1s == SYS_FREQ) cnt <= 0;
-        else if (cnt == AD7380_DIV_FREQ-1) cnt <= 0;
+        else if (cnt == AD7380_DIV_FREQ - 1) cnt <= 0;
         else cnt <= cnt + 1;
     end
     always @(posedge clk_int) begin
@@ -393,8 +393,8 @@ module top (
         else if (din_valid_func) din_data_func <= din_data_func + 1;
         else din_data_func <= din_data_func;
     end
-    assign din_valid_func = din_data_func<UPLOAD_RATE&& cnt == AD7380_DIV_FREQ-1;
-    assign din_last_func  = din_data_func==UPLOAD_RATE-1&& cnt== AD7380_DIV_FREQ-1;
+    assign din_valid_func = din_data_func < UPLOAD_RATE && cnt == AD7380_DIV_FREQ - 1;
+    assign din_last_func  = din_data_func == UPLOAD_RATE - 1 && cnt == AD7380_DIV_FREQ - 1;
     // fpga_core #(
     //     .TARGET("XILINX")
     // ) udp_top_inst (
@@ -417,15 +417,18 @@ module top (
         .DATA_W(32)
     ) udp_top_inst (
         // user interface
-        .sys_clk  (clk_int),
-        .sys_rstn (~rst_int),
-        .din_data (din_data_func),
-        .din_valid(din_valid_func),
-        .din_last (din_last_func),
-        .dout_data (dout_data_func),
-        .dout_valid (dout_valid_func),
-        .dout_last (dout_last_func),
-        .dout_ready (1),
+        .wr_clk  (clk_int),
+        .wr_rstn (~rst_int),
+        .rd_clk  (clk_int),
+        .rd_rstn (~rst_int),
+        .wr_data (din_data_func),
+        .wr_valid(din_valid_func),
+        .wr_last (din_last_func),
+        .wr_ready(),
+        .rd_data (dout_data_func),
+        .rd_valid(dout_valid_func),
+        .rd_last (dout_last_func),
+        .rd_ready(1),
 
         // clock and reset
         .clk  (clk_int),

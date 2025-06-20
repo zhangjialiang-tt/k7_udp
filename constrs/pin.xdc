@@ -31,11 +31,11 @@ set_property -dict {LOC A17 IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 12} [get_ports u
 set_property -dict {LOC B17 IOSTANDARD LVCMOS33} [get_ports uart_rxd]
 
 # Push buttons
-set_property -dict {LOC D26 IOSTANDARD LVCMOS33} [get_ports btnu]
-set_property -dict {LOC G25 IOSTANDARD LVCMOS33} [get_ports btnl]
-set_property -dict {LOC E26 IOSTANDARD LVCMOS33} [get_ports btnd]
-set_property -dict {LOC G26 IOSTANDARD LVCMOS33} [get_ports btnr]
-set_property -dict {LOC H26 IOSTANDARD LVCMOS33} [get_ports btnc]
+# set_property -dict {LOC D26 IOSTANDARD LVCMOS33} [get_ports btnu]
+# set_property -dict {LOC G25 IOSTANDARD LVCMOS33} [get_ports btnl]
+# set_property -dict {LOC E26 IOSTANDARD LVCMOS33} [get_ports btnd]
+# set_property -dict {LOC G26 IOSTANDARD LVCMOS33} [get_ports btnr]
+# set_property -dict {LOC H26 IOSTANDARD LVCMOS33} [get_ports btnc]
 
 #------------------- Ethernet MII PHY1 ----------------------
 
