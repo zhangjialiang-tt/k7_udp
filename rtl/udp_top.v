@@ -38,18 +38,20 @@ module udp_top #(
     parameter DATA_W     = 64                               // 应用层数据位宽
 ) (
     // System/Application Clock Domain
-    input wire sys_clk,
-    input wire sys_rstn,
+    input wire wr_clk,
+    input wire wr_rstn,
+    input wire rd_clk,
+    input wire rd_rstn,
 
     // Simplified App Interface (sys_clk domain)
-    input  wire [DATA_W-1:0] din_data,
-    input  wire              din_valid,
-    input  wire              din_last,
-    output wire              din_ready,
-    output wire [DATA_W-1:0] dout_data,
-    output wire              dout_valid,
-    output wire              dout_last,
-    input  wire              dout_ready,
+    input  wire [DATA_W-1:0] wr_data,
+    input  wire              wr_valid,
+    input  wire              wr_last,
+    output wire              wr_ready,
+    output wire [DATA_W-1:0] rd_data,
+    output wire              rd_valid,
+    output wire              rd_last,
+    input  wire              rd_ready,
 
     // Core Clock Domain: 125MHz
     input wire clk,
@@ -66,7 +68,8 @@ module udp_top #(
     output wire       phy_reset_n
 );
 
-    wire        sys_rst = !sys_rstn;
+    wire wr_rst = !wr_rstn;
+    wire rd_rst = !rd_rstn;
 
     // Configuration
     wire [47:0] local_mac = 48'h02_00_00_00_00_00;
@@ -202,14 +205,14 @@ module udp_top #(
         .DATA_W(DATA_W)
     ) udp_tx_path_inst (
         // System/Application Clock Domain
-        .sys_clk(sys_clk),
-        .sys_rst(sys_rst),
+        .sys_clk (wr_clk),
+        .sys_rst (wr_rst),
 
         // Application Interface (sys_clk domain)
-        .din_data (din_data),
-        .din_valid(din_valid),
-        .din_last (din_last),
-        .din_ready(din_ready),
+        .din_data (wr_data),
+        .din_valid(wr_valid),
+        .din_last (wr_last),
+        .din_ready(wr_ready),
 
         // Core Clock Domain
         .clk(clk),
@@ -247,13 +250,13 @@ module udp_top #(
         .DATA_W(DATA_W)
     ) udp_rx_path_inst (
         // System/Application Clock Domain
-        .sys_clk                   (sys_clk),
-        .sys_rst                   (sys_rst),
+        .sys_clk                   (rd_clk),
+        .sys_rst                   (rd_rst),
         // Application Interface (sys_clk domain)
-        .dout_data                 (dout_data),
-        .dout_valid                (dout_valid),
-        .dout_last                 (dout_last),
-        .dout_ready                (dout_ready),
+        .dout_data                 (rd_data),
+        .dout_valid                (rd_valid),
+        .dout_last                 (rd_last),
+        .dout_ready                (rd_ready),
         // Core Clock Domain
         .clk                       (clk),
         .rst                       (rst),

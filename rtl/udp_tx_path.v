@@ -96,9 +96,9 @@ module udp_tx_path #(
     // ----------------------------------------------------------------
     // TX 路径: din_* -> internal AXI-Stream
     // ----------------------------------------------------------------
-    (*mark_debug = "false"*)reg  [              15:0] tx_byte_cnt;  // 字节计数器
-    (*mark_debug = "false"*)reg                       tx_data_collecting;  // 数据收集标志
-    (*mark_debug = "false"*)reg                       tx_data_complete;  // 数据收集完成标志
+    // (*mark_debug = "false"*)reg  [              15:0] tx_byte_cnt;  // 字节计数器
+    // (*mark_debug = "false"*)reg                       tx_data_collecting;  // 数据收集标志
+    // (*mark_debug = "false"*)reg                       tx_data_complete;  // 数据收集完成标志
 
 
     (*mark_debug = "false"*)reg  [               2:0] tx_app_state;
@@ -166,22 +166,6 @@ module udp_tx_path #(
                         tx_app_state <= TX_APP_FINISH;
                         s_app_tx_payload_len <= tx_bytes_to_send;
                     end
-
-                    // if (tx_fifo_out_payload_axis_tready && tx_fifo_out_payload_axis_tvalid) begin
-                    //     tx_data_counter <= tx_data_counter + 1;
-
-                    //     // 移动到下一个字节
-                    //     if (tx_byte_index == BYTE_PER_WORD - 1) begin
-                    //         tx_byte_index <= 4'd0;
-                    //         // 如果所有字节都已发送，结束数据传输
-                    //         if (tx_data_counter == tx_bytes_to_send - 1) begin
-                    //             s_app_tx_payload_len <= tx_bytes_to_send;
-                    //             tx_app_state <= TX_APP_FINISH;
-                    //         end
-                    //     end else begin
-                    //         tx_byte_index <= tx_byte_index + 1;
-                    //     end
-                    // end
                 end
                 TX_APP_FINISH: begin
                     // 发送完成，等待下一次传输

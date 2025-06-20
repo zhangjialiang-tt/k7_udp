@@ -173,6 +173,7 @@ module udp_rx_path #(
         end else begin
             case (rx_app_state)
                 RX_APP_IDLE: begin
+                    rx_output_last <= 0;
                     // Wait for data to arrive in FIFO
                     if (m_app_rx_axis_tvalid) begin
                         rx_app_state <= RX_APP_PREP;
