@@ -34,19 +34,21 @@ module top (
      * Clock: 100MHz
      * Reset: Push button, active low
      */
-    input wire clk,
+    // input wire clk,
+    input  wire         sys_clk_p,
+    input  wire         sys_clk_n,
     // input  wire       reset_n,
 
     /*
      * GPIO
      */
-    input  wire       btnu,
-    input  wire       btnl,
-    input  wire       btnd,
-    input  wire       btnr,
-    input  wire       btnc,
+    // input  wire       btnu,
+    // input  wire       btnl,
+    // input  wire       btnd,
+    // input  wire       btnr,
+    // input  wire       btnc,
     // input  wire [7:0] sw,
-    output wire [7:0] led,
+    output wire [1-1:0] led,
 
     /*
      * Ethernet: 1000BASE-T RGMII
@@ -71,6 +73,7 @@ module top (
     // Clock and reset
 
     wire clk_ibufg;
+    wire clk_bufg;
 
     // Internal 125 MHz clock
     wire clk_mmcm_out;
@@ -81,11 +84,23 @@ module top (
     wire mmcm_locked;
     wire mmcm_clkfb;
 
-    IBUFG clk_ibufg_inst (
-        .I(clk),
-        .O(clk_ibufg)
+    // IBUFG clk_ibufg_inst (
+    //     .I(clk),
+    //     .O(clk_ibufg)
+    // );
+    IBUFGDS #(
+        .DIFF_TERM   ("FALSE"),   // Differential Termination
+        .IBUF_LOW_PWR("FALSE"),   // Low power="TRUE", Highest performance="FALSE" 
+        .IOSTANDARD  ("DEFAULT")  // Specify the input I/O standard
+    ) IBUFGDS_inst (
+        .O (clk_ibufg),    // Buffer output
+        .I (sys_clk_p),  // Diff_p buffer input (connect directly to top-level port)
+        .IB(sys_clk_n)   // Diff_n buffer input (connect directly to top-level port)
     );
-
+    BUFG clk_0_bufg_inst (
+        .I(clk_ibufg),
+        .O(clk_bufg)
+    );
     wire clk90_mmcm_out;
     wire clk90_int;
 
@@ -131,23 +146,23 @@ module top (
         .CLKOUT6_DUTY_CYCLE(0.5),
         .CLKOUT6_PHASE(0),
 
-        .CLKFBOUT_MULT_F(20),  //Fvco = 50mhz*20=1000mhz
-        .CLKFBOUT_PHASE(0),
-        .DIVCLK_DIVIDE(1),
-        .REF_JITTER1(0.010),
-        .CLKIN1_PERIOD(20.0),  //输入时钟周期-20ns
-        .STARTUP_WAIT("FALSE"),
+        .CLKFBOUT_MULT_F(5),       //Fvco = 200mhz*5=1000mhz
+        .CLKFBOUT_PHASE (0),
+        .DIVCLK_DIVIDE  (1),
+        .REF_JITTER1    (0.010),
+        .CLKIN1_PERIOD  (5.0),     //输入时钟周期-5ns
+        .STARTUP_WAIT   ("FALSE"),
         .CLKOUT4_CASCADE("FALSE")
-    ) clk_mmcm_inst (
-        .CLKIN1   (clk_ibufg),         //50MHZ
+    ) clk_mmcm_1_inst (
+        .CLKIN1   (clk_bufg),   //200MHZ
         .CLKFBIN  (mmcm_clkfb),
         .RST      (mmcm_rst),
         .PWRDWN   (1'b0),
-        .CLKOUT0  (clk_mmcm_out),
+        .CLKOUT0  (clk_mmcm_out),    //125MHZ
         .CLKOUT0B (),
-        .CLKOUT1  (clk90_mmcm_out),
+        .CLKOUT1  (clk90_mmcm_out),    //125MHZ
         .CLKOUT1B (),
-        .CLKOUT2  (clk_200_mmcm_out),
+        .CLKOUT2  (clk_200_mmcm_out),//100MHZ
         .CLKOUT2B (),
         .CLKOUT3  (),
         .CLKOUT3B (),
@@ -191,16 +206,16 @@ module top (
     wire [7:0] sw;
     wire [7:0] sw_int;
     assign sw = 8'd0;
-    debounce_switch #(
-        .WIDTH(13),
-        .N(4),
-        .RATE(125000)
-    ) debounce_switch_inst (
-        .clk(clk_int),
-        .rst(rst_int),
-        .in ({btnu, btnl, btnd, btnr, btnc, sw}),
-        .out({btnu_int, btnl_int, btnd_int, btnr_int, btnc_int, sw_int})
-    );
+    // debounce_switch #(
+    //     .WIDTH(13),
+    //     .N(4),
+    //     .RATE(125000)
+    // ) debounce_switch_inst (
+    //     .clk(clk_int),
+    //     .rst(rst_int),
+    //     .in ({btnu, btnl, btnd, btnr, btnc, sw}),
+    //     .out({btnu_int, btnl_int, btnd_int, btnr_int, btnc_int, sw_int})
+    // );
 
     wire uart_rxd_int;
 
@@ -315,14 +330,14 @@ module top (
         .i_Rst_n  (~rst_int),
         .o_led    (led[0])
     );
-    led_blink #(
-        .LED_NUM (1),
-        .STS_FREQ(125_000_000)
-    ) led1_blink_inst (
-        .i_Sys_clk(clk90_int),
-        .i_Rst_n  (~rst_int),
-        .o_led    (led[1])
-    );
+    // led_blink #(
+    //     .LED_NUM (1),
+    //     .STS_FREQ(125_000_000)
+    // ) led1_blink_inst (
+    //     .i_Sys_clk(clk90_int),
+    //     .i_Rst_n  (~rst_int),
+    //     .o_led    (led[1])
+    // );
     // fpga_core #(
     //     .TARGET("XILINX")
     // ) core_inst (
@@ -417,15 +432,28 @@ module top (
         .DATA_W(32)
     ) udp_top_inst (
         // user interface
-        .sys_clk  (clk_int),
-        .sys_rstn (~rst_int),
-        .din_data (din_data_func),
-        .din_valid(din_valid_func),
-        .din_last (din_last_func),
-        .dout_data (dout_data_func),
-        .dout_valid (dout_valid_func),
-        .dout_last (dout_last_func),
-        .dout_ready (1),
+        .wr_clk     (clk_int),
+        .wr_rstn    (~rst_int),
+        .rd_clk     (clk_int),
+        .rd_rstn    (~rst_int),
+        .wr_data    (din_data_func),
+        .wr_valid   (din_valid_func),
+        .wr_last    (din_last_func),
+        .wr_ready   (),
+        .rd_data    (dout_data_func),
+        .rd_valid   (dout_valid_func),
+        .rd_last    (dout_last_func),
+        .rd_ready   (1),
+        // user interface
+        // .sys_clk  (clk_int),
+        // .sys_rstn (~rst_int),
+        // .din_data (din_data_func),
+        // .din_valid(din_valid_func),
+        // .din_last (din_last_func),
+        // .dout_data (dout_data_func),
+        // .dout_valid (dout_valid_func),
+        // .dout_last (dout_last_func),
+        // .dout_ready (1),
 
         // clock and reset
         .clk  (clk_int),

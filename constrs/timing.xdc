@@ -1,5 +1,5 @@
 create_clock -period 8.000 -name phy2_rx_clk [get_ports phy2_rx_clk]
-create_clock -period 20.000 -name clk [get_ports clk]
+create_clock -period 5.000 -name sys_clk_p [get_ports sys_clk_p]
 
 # Ethernet constraints
 
@@ -17,6 +17,6 @@ set_false_path -from [get_ports uart_rxd]
 set_input_delay 0.000 [get_ports uart_rxd]
 
 
-set_false_path -from [get_ports {btnu btnl btnd btnr btnc}]
-set_input_delay 0.000 [get_ports {btnu btnl btnd btnr btnc}]
+# set_false_path -from [get_ports {btnu btnl btnd btnr btnc}]
+# set_input_delay 0.000 [get_ports {btnu btnl btnd btnr btnc}]
 

@@ -10,7 +10,7 @@
 #! Note: Do not add spaces after variable names
 PROJECT_NAME ?= k7_udp
 # Vivado Part
-PART_NAME ?= xc7k325t-ffg676-2
+PART_NAME ?= xc7a200tfbg484#xc7k325t-ffg676-2
 BLOCK_DESIGN_NAME ?= design_1
 # Vivado Executable (adjust if necessary)
 VIVADO := vivado
