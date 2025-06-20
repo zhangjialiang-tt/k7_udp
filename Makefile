@@ -296,6 +296,11 @@ flash_elf_bit:gen_bif
 	${FLASH_TOOL} -f ${BIN_FILE2} -offset ${FLASH_BIT_OFFSET} -flash_type ${FLASH_TYPE}
 	@echo "INFO: Flash programming completed."
 
+program:
+	@echo "INFO: Programming FPGA with bitstream and loading ELF (if applicable)..."
+	${VIVADO} -mode batch -source ${SCRIPT_DIR}/program_fpga.tcl -tclargs ${PROJECT_DIR}/${PROJECT_NAME}.xpr ${BITSTREAM}
+	@echo "INFO: FPGA programming script finished."
+
 # --- Erase Flash ---
 erase_flash:
 	@echo "INFO: Erasing Flash..."
