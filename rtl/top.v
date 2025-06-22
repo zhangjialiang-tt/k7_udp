@@ -322,14 +322,15 @@ module top (
         .LDPIPEEN   (1'b0),
         .REGRST     (1'b0)
     );
-    led_blink #(
-        .LED_NUM (1),
-        .STS_FREQ(125_000_000)
-    ) led0_blink_inst (
-        .i_Sys_clk(clk_int),
-        .i_Rst_n  (~rst_int),
-        .o_led    (led[0])
-    );
+    // led_blink #(
+    //     .LED_NUM (1),
+    //     .STS_FREQ(125_000_000)
+    // ) led0_blink_inst (
+    //     .i_Sys_clk(clk_int),
+    //     .i_Rst_n  (~rst_int),
+    //     .o_led    (led[0])
+    // );
+    assign led[0] = phy2_reset_n;
     // led_blink #(
     //     .LED_NUM (1),
     //     .STS_FREQ(125_000_000)
@@ -467,8 +468,13 @@ module top (
         .phy_tx_clk (phy2_tx_clk),
         .phy_txd    (phy2_txd),
         .phy_tx_ctl (phy2_tx_ctl),
-        .phy_reset_n(phy2_reset_n)
+        .phy_reset_n(/*phy2_reset_n*/)
     );
+    poweron_delay poweron_delay_inst (
+        .i_Sys_clk(clk_int),
+        .i_Rst_n(~rst_int),
+        .o_Delay_done(phy2_reset_n)
+      );
 endmodule
 
 `resetall
