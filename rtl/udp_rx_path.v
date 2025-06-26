@@ -211,6 +211,7 @@ module udp_rx_path #(
                         // Application has taken the data, de-assert valid
                         rx_output_valid <= 1'b0;
                         if (rx_output_last) begin
+                            rx_output_last <= 1'b0;
                             // End of packet, go back to idle
                             rx_app_state <= RX_APP_IDLE;
                         end else begin
