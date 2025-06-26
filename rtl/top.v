@@ -36,7 +36,8 @@ module top (
      */
     input wire clk,
     // input  wire       reset_n,
-
+    
+    input  wire [1-1:0]      key_in,
     /*
      * GPIO
      */
@@ -188,6 +189,7 @@ module top (
     wire       btnd_int;
     wire       btnr_int;
     wire       btnc_int;
+    wire [1-1:0] key_cap;
     wire [7:0] sw;
     wire [7:0] sw_int;
     assign sw = 8'd0;
@@ -315,6 +317,22 @@ module top (
         .i_Rst_n  (~rst_int),
         .o_led    (led[0])
     );
+    
+    key #(
+        .CLK_FREQ(125_000_000)
+    ) key0 (
+        .clk_i(clk_int),
+        .key_i(key_in[0]),
+        .key_cap(key_cap)
+    );
+    reg [1-1:0] led_reg;
+    always @(posedge clk_int) begin
+        if (rst_int) led_reg <= 0;
+        else if (key_cap) led_reg <= ~led_reg;
+        else led_reg <= led_reg;
+    end
+    assign led[1] = led_reg;
+
     // led_blink #(
     //     .LED_NUM (1),
     //     .STS_FREQ(125_000_000)
@@ -362,8 +380,8 @@ module top (
     //     .uart_txd   (uart_txd)
     // );
     localparam SYS_FREQ = 125_000_000;
-    localparam AD7380_DIV_FREQ = 47;
-    localparam UPLOAD_RATE = 10;
+    localparam AD7380_DIV_FREQ = 50;//125m/50=2.5m
+    localparam UPLOAD_RATE = 100;//2.5m/100=25k
     (*mark_debug = "false"*)reg  [31:0] cnt_1s = 32'd0;
     (*mark_debug = "false"*)reg  [31:0] cnt = 32'd0;
     (*mark_debug = "false"*)reg  [31:0] din_data_func;
@@ -374,15 +392,19 @@ module top (
     (*mark_debug = "false"*)wire [31:0] dout_data_func;
     (*mark_debug = "false"*)wire        dout_valid_func;
     (*mark_debug = "false"*)wire        dout_last_func;
+    (*mark_debug = "false"*)reg [31:0] packet_count;
+    (*mark_debug = "false"*)reg [10:0] packet_inner_count;
 
     always @(posedge clk_int) begin
         if (rst_int) cnt_1s <= 32'd0;
-        else if (cnt_1s == SYS_FREQ) cnt_1s <= 0;
+        else if (key_cap) cnt_1s <= 0;
+        else if (cnt_1s == SYS_FREQ) cnt_1s <= cnt_1s;
         else cnt_1s <= cnt_1s + 1;
     end
     always @(posedge clk_int) begin
         if (rst_int) cnt <= 32'd0;
-        else if (cnt_1s == SYS_FREQ) cnt <= 0;
+        else if (key_cap) cnt <= 0;
+        else if (cnt_1s == SYS_FREQ) cnt <= cnt;
         else if (cnt == AD7380_DIV_FREQ - 1) cnt <= 0;
         else cnt <= cnt + 1;
     end
@@ -393,8 +415,22 @@ module top (
         else if (din_valid_func) din_data_func <= din_data_func + 1;
         else din_data_func <= din_data_func;
     end
-    assign din_valid_func = din_data_func < UPLOAD_RATE && cnt == AD7380_DIV_FREQ - 1;
-    assign din_last_func  = din_data_func == UPLOAD_RATE - 1 && cnt == AD7380_DIV_FREQ - 1;
+    always @(posedge clk_int) begin
+        if (rst_int) packet_inner_count <= 11'd0;
+        else if (din_valid_func) begin
+            if(packet_inner_count == UPLOAD_RATE - 1) packet_inner_count <= 0;
+            else packet_inner_count <= packet_inner_count + 1;
+        end else packet_inner_count <= packet_inner_count;
+    end
+    assign din_valid_func = cnt == AD7380_DIV_FREQ - 1;
+    assign din_last_func  = packet_inner_count == UPLOAD_RATE - 1 && cnt == AD7380_DIV_FREQ - 1;
+    
+    always @(posedge clk_int) begin
+        if (rst_int) packet_count <= 32'd0;
+        else if (key_cap) packet_count <= 0;
+        else if (din_last_func == 1) packet_count <= packet_count + 1;
+        else packet_count <= packet_count;
+    end
     // fpga_core #(
     //     .TARGET("XILINX")
     // ) udp_top_inst (

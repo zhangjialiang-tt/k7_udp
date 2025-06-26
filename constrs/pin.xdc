@@ -9,11 +9,15 @@
 # 100 MHz clock
 set_property -dict {LOC AD12 IOSTANDARD SSTL135} [get_ports clk]
 
+# Key
+set_property -dict {LOC Y28 IOSTANDARD LVCMOS18} [get_ports {key_in[0]}]
+# set_property -dict {LOC Y28   IOSTANDARD LVCMOS18 } [get_ports {key_in[1]}]
+# set_property -dict {LOC AA28  IOSTANDARD LVCMOS18 } [get_ports {key_in[2]}]
 
 # LEDs
-set_property -dict {LOC AB28 IOSTANDARD LVCMOS18 } [get_ports {led[0]}]
-set_property -dict {LOC AA27 IOSTANDARD LVCMOS18 } [get_ports {led[1]}]
-set_property -dict {LOC J21  IOSTANDARD LVCMOS18 } [get_ports {led[2]}]
+set_property -dict {LOC AB28 IOSTANDARD LVCMOS18} [get_ports {led[0]}]
+set_property -dict {LOC AA27 IOSTANDARD LVCMOS18} [get_ports {led[1]}]
+set_property -dict {LOC J21 IOSTANDARD LVCMOS18} [get_ports {led[2]}]
 
 # Reset button
 # set_property -dict {LOC G4 IOSTANDARD LVCMOS15} [get_ports reset_n]
@@ -22,7 +26,7 @@ set_property -dict {LOC J21  IOSTANDARD LVCMOS18 } [get_ports {led[2]}]
 # set_input_delay 0 [get_ports {reset_n}]
 
 # UART
-set_property -dict {LOC Y26  IOSTANDARD LVCMOS18} [get_ports uart_txd]
+set_property -dict {LOC Y26 IOSTANDARD LVCMOS18} [get_ports uart_txd]
 set_property -dict {LOC AA26 IOSTANDARD LVCMOS18} [get_ports uart_rxd]
 
 # Push buttons
@@ -52,20 +56,21 @@ set_property -dict {LOC AA26 IOSTANDARD LVCMOS18} [get_ports uart_rxd]
 
 #------------------- Ethernet MII PHY2 ----------------------
 
-set_property -dict {PACKAGE_PIN AH27  IOSTANDARD LVCMOS18} [get_ports {phy2_rxd[0]}]
-set_property -dict {PACKAGE_PIN AJ27  IOSTANDARD LVCMOS18} [get_ports {phy2_rxd[1]}]
-set_property -dict {PACKAGE_PIN AK28  IOSTANDARD LVCMOS18} [get_ports {phy2_rxd[2]}]
-set_property -dict {PACKAGE_PIN AJ26  IOSTANDARD LVCMOS18} [get_ports {phy2_rxd[3]}]
-set_property -dict {PACKAGE_PIN AH26  IOSTANDARD LVCMOS18} [get_ports phy2_rx_ctl]
-set_property -dict {PACKAGE_PIN AG29  IOSTANDARD LVCMOS18} [get_ports phy2_rx_clk]
-set_property -dict {PACKAGE_PIN AH30  IOSTANDARD LVCMOS18 SLEW FAST} [get_ports {phy2_txd[0]}]
-set_property -dict {PACKAGE_PIN AJ28  IOSTANDARD LVCMOS18 SLEW FAST} [get_ports {phy2_txd[1]}]
-set_property -dict {PACKAGE_PIN AJ29  IOSTANDARD LVCMOS18 SLEW FAST} [get_ports {phy2_txd[2]}]
-set_property -dict {PACKAGE_PIN AK29  IOSTANDARD LVCMOS18 SLEW FAST} [get_ports {phy2_txd[3]}]
-set_property -dict {PACKAGE_PIN AG30  IOSTANDARD LVCMOS18 SLEW FAST} [get_ports phy2_tx_ctl]
-set_property -dict {PACKAGE_PIN AK26  IOSTANDARD LVCMOS18 SLEW FAST} [get_ports phy2_tx_clk]
-set_property -dict {PACKAGE_PIN AK30  IOSTANDARD LVCMOS18} [get_ports phy2_reset_n]
+set_property -dict {PACKAGE_PIN AH27 IOSTANDARD LVCMOS18} [get_ports {phy2_rxd[0]}]
+set_property -dict {PACKAGE_PIN AJ27 IOSTANDARD LVCMOS18} [get_ports {phy2_rxd[1]}]
+set_property -dict {PACKAGE_PIN AK28 IOSTANDARD LVCMOS18} [get_ports {phy2_rxd[2]}]
+set_property -dict {PACKAGE_PIN AJ26 IOSTANDARD LVCMOS18} [get_ports {phy2_rxd[3]}]
+set_property -dict {PACKAGE_PIN AH26 IOSTANDARD LVCMOS18} [get_ports phy2_rx_ctl]
+set_property -dict {PACKAGE_PIN AG29 IOSTANDARD LVCMOS18} [get_ports phy2_rx_clk]
+set_property -dict {PACKAGE_PIN AH30 IOSTANDARD LVCMOS18 SLEW FAST} [get_ports {phy2_txd[0]}]
+set_property -dict {PACKAGE_PIN AJ28 IOSTANDARD LVCMOS18 SLEW FAST} [get_ports {phy2_txd[1]}]
+set_property -dict {PACKAGE_PIN AJ29 IOSTANDARD LVCMOS18 SLEW FAST} [get_ports {phy2_txd[2]}]
+set_property -dict {PACKAGE_PIN AK29 IOSTANDARD LVCMOS18 SLEW FAST} [get_ports {phy2_txd[3]}]
+set_property -dict {PACKAGE_PIN AG30 IOSTANDARD LVCMOS18 SLEW FAST} [get_ports phy2_tx_ctl]
+set_property -dict {PACKAGE_PIN AK26 IOSTANDARD LVCMOS18 SLEW FAST} [get_ports phy2_tx_clk]
+set_property -dict {PACKAGE_PIN AK30 IOSTANDARD LVCMOS18} [get_ports phy2_reset_n]
 # set_property -dict {PACKAGE_PIN AA25 } [get_ports phy2_mdc]
 # set_property -dict {PACKAGE_PIN Y25  } [get_ports phy2_mdio]
+
 
 

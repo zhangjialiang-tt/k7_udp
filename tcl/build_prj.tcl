@@ -131,6 +131,7 @@ add_files -fileset sources_1 -norecurse [list \
 [file normalize "${origin_dir}/rtl/udp_rx_path.v"] \
 [file normalize "${origin_dir}/rtl/udp_tx_path.v"] \
 [file normalize "${origin_dir}/rtl/poweron_delay.v"] \
+[file normalize "${origin_dir}/rtl/key/key.v"] \
   [file normalize "${origin_dir}/rtl/axis/arbiter.v"] \
   [file normalize "${origin_dir}/rtl/axis/axis_adapter.v"] \
   [file normalize "${origin_dir}/rtl/axis/axis_arb_mux.v"] \

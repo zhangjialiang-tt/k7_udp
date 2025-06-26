@@ -108,9 +108,17 @@ module tb_udp_top;
         else if (din_valid_func) din_data_func <= din_data_func + 1;
         else din_data_func <= din_data_func;
     end
+    reg [10:0] packet_inner_count;
+    always @(posedge clk_125m) begin
+        if (rst_125m) packet_inner_count <= 11'd0;
+        else if (din_valid_func) begin
+            if(packet_inner_count == UPLOAD_RATE - 1) packet_inner_count <= 0;
+            else packet_inner_count <= packet_inner_count + 1;
+        end else packet_inner_count <= packet_inner_count;
+    end
     // assign din_valid_func = din_data_func < UPLOAD_RATE && cnt == AD7380_DIV_FREQ - 1;
-    assign din_valid_func = cnt[0] ==1&&cnt <= AD7380_DIV_FREQ - 1&& cnt > (AD7380_DIV_FREQ/2);
-    assign din_last_func  = cnt == AD7380_DIV_FREQ - 1;
+    assign din_valid_func = cnt == AD7380_DIV_FREQ - 1;
+    assign din_last_func  = packet_inner_count == UPLOAD_RATE - 1 && cnt == AD7380_DIV_FREQ - 1;
     udp_top #(
         .TARGET("GENERIC"),
         .DATA_W(DATA_W)
