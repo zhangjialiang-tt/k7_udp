@@ -1,5 +1,5 @@
 create_clock -period 8.000 -name phy2_rx_clk [get_ports phy2_rx_clk]
-create_clock -period 20.000 -name clk [get_ports clk]
+create_clock -period 10.000 -name clk [get_ports clk]
 
 # Ethernet constraints
 

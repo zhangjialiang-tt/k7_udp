@@ -10,7 +10,7 @@
 #! Note: Do not add spaces after variable names
 PROJECT_NAME ?= k7_udp
 # Vivado Part
-PART_NAME ?= xc7k325tffg676-2
+PART_NAME ?= xc7k325tffg900-2
 BLOCK_DESIGN_NAME ?= design_1
 # Vivado Executable (adjust if necessary)
 VIVADO := vivado
@@ -78,10 +78,12 @@ FLASH_BIT := ${DOWNLOAD_BIT}
 FLASH_TOOL := program_flash
 FLASH_CABLE := xilinx_tcf
 FLASH_URL := TCP:127.0.0.1:3121
-# k7_base development board
+# ->k7_base development board
 # FLASH_TYPE := mx25l25645g-spi-x1_x2_x4
-# PTRW022 main board
-FLASH_TYPE := mt25ql128-spi-x1_x2_x4
+# ->PTRW022 main board
+# FLASH_TYPE := mt25ql128-spi-x1_x2_x4
+# ->米联客开发板
+FLASH_TYPE := mt25ql256-spi-x1_x2_x4
 FLASH_ELF_OFFSET := 0x00800000
 FLASH_BIT_OFFSET := 0
 # Phony targets

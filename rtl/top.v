@@ -46,7 +46,7 @@ module top (
     // input  wire       btnr,
     // input  wire       btnc,
     // input  wire [7:0] sw,
-    output wire [7:0] led,
+    output wire [2:0] led,
 
     /*
      * Ethernet: 1000BASE-T RGMII
@@ -131,15 +131,15 @@ module top (
         .CLKOUT6_DUTY_CYCLE(0.5),
         .CLKOUT6_PHASE(0),
 
-        .CLKFBOUT_MULT_F(20),  //Fvco = 50mhz*20=1000mhz
+        .CLKFBOUT_MULT_F(10),  //Fvco = 100mhz*10=1000mhz
         .CLKFBOUT_PHASE(0),
         .DIVCLK_DIVIDE(1),
         .REF_JITTER1(0.010),
-        .CLKIN1_PERIOD(20.0),  //输入时钟周期-20ns
+        .CLKIN1_PERIOD(10.0),  //输入时钟周期-10ns
         .STARTUP_WAIT("FALSE"),
         .CLKOUT4_CASCADE("FALSE")
     ) clk_mmcm_inst (
-        .CLKIN1   (clk_ibufg),         //50MHZ
+        .CLKIN1   (clk_ibufg),         //100MHZ
         .CLKFBIN  (mmcm_clkfb),
         .RST      (mmcm_rst),
         .PWRDWN   (1'b0),
@@ -442,8 +442,13 @@ module top (
         .phy_tx_clk (phy2_tx_clk),
         .phy_txd    (phy2_txd),
         .phy_tx_ctl (phy2_tx_ctl),
-        .phy_reset_n(phy2_reset_n)
+        .phy_reset_n(/*phy2_reset_n*/)
     );
+    poweron_delay poweron_delay_inst (
+        .i_Sys_clk(clk_int),
+        .i_Rst_n(~rst_int),
+        .o_Delay_done(phy2_reset_n)
+      );
 endmodule
 
 `resetall
