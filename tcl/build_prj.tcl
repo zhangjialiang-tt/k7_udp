@@ -124,6 +124,8 @@ add_files -fileset sources_1 -norecurse [list \
 [file normalize "${origin_dir}/rtl/top.v"] \
 [file normalize "${origin_dir}/rtl/fpga_core.v"] \
 [file normalize "${origin_dir}/rtl/led_blink.v"] \
+[file normalize "${origin_dir}/rtl/key.v"] \
+[file normalize "${origin_dir}/rtl/gen_testdata.v"] \
 [file normalize "${origin_dir}/rtl/debounce_switch.v"] \
 [file normalize "${origin_dir}/rtl/sync_signal.v"] \
 [file normalize "${origin_dir}/rtl/udp_top.v"] \

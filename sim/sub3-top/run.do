@@ -20,15 +20,24 @@ vmap work work
 set ROOT ../../rtl
 set UDP $ROOT/eth
 set AXIS $ROOT/axis
+set COMMON $ROOT/common
 #6.编译仿真文件
 vlog -work work ./tb_udp_top.v
-vlog -work work $ROOT/*.v
+vlog -work work $ROOT/gen_testdata.v
+vlog -work work $ROOT/led_blink.v
+vlog -work work $ROOT/sync_signal.v
+vlog -work work $ROOT/top.v
+vlog -work work $ROOT/udp_core.v
+vlog -work work $ROOT/udp_rx_path.v
+vlog -work work $ROOT/udp_top.v
+vlog -work work $ROOT/udp_tx_path.v
 vlog -work work $AXIS/*.v
 vlog -work work $UDP/*.v
+vlog -work work $ROOT/fpga_core.v
+vlog -work work $COMMON/*.v
 # vlog -work work $ROOT/debounce_switch.v
 # vlog -work work $ROOT/sync_signal.v
 # vlog -work work $ROOT/udp_top.v
-# vlog -work work $ROOT/fpga_core.v
 #7.start simulation
 vsim -t ns -voptargs=+acc work.tb_udp_top
 
@@ -38,4 +47,4 @@ do wave.do
 
 #9.run
 # temp
-run 16000ns
+run 1ms

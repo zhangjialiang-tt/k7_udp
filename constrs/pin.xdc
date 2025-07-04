@@ -9,7 +9,12 @@
 # 100 MHz clock
 set_property -dict {LOC G22 IOSTANDARD LVCMOS33} [get_ports clk]
 
-
+# 按键
+set_property -dict {LOC D26 IOSTANDARD LVCMOS33} [get_ports {key_in[0]}]
+set_property -dict {LOC G25 IOSTANDARD LVCMOS33} [get_ports {key_in[1]}]
+set_property -dict {LOC E26 IOSTANDARD LVCMOS33} [get_ports {key_in[2]}]
+set_property -dict {LOC G26 IOSTANDARD LVCMOS33} [get_ports {key_in[3]}]
+set_property -dict {LOC H26 IOSTANDARD LVCMOS33} [get_ports {key_in[4]}]
 # LEDs
 set_property -dict {LOC E25 IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 12} [get_ports {led[7]}]
 set_property -dict {LOC D25 IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 12} [get_ports {led[6]}]
