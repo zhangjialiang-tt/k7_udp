@@ -124,6 +124,18 @@ ${BITSTREAM}: ${PROJECT_DIR}/${PROJECT_NAME}.runs/impl_1/top_routed.dcp
 	${VIVADO} -mode batch -source ${SCRIPT_DIR}/run_bitstream.tcl -tclargs ${PROJECT_DIR}/${PROJECT_NAME}.xpr ${PROJECT_NAME}
 	@echo "INFO: Bitstream generation finished."
 
+# Reset synthesis and implementation runs
+reset_runs:
+	@echo "INFO: Resetting synthesis and implementation runs..."
+	${VIVADO} -mode batch -source ${SCRIPT_DIR}/reset_runs.tcl -tclargs ${PROJECT_DIR}/${PROJECT_NAME}.xpr
+	@echo "INFO: Reset finished."
+
+# Delete synthesis and implementation runs
+delete_runs:
+	@echo "INFO: Deleting synthesis and implementation runs..."
+	${VIVADO} -mode batch -source ${SCRIPT_DIR}/delete_runs.tcl -tclargs ${PROJECT_DIR}/${PROJECT_NAME}.xpr
+	@echo "INFO: Delete finished."
+
 # Export Hardware (XSA) for Vitis/SDK
 export_hw: ${XSA_FILE}
 
@@ -301,6 +313,11 @@ program:
 	${VIVADO} -mode batch -source ${SCRIPT_DIR}/program_fpga.tcl -tclargs ${PROJECT_DIR}/${PROJECT_NAME}.xpr ${BITSTREAM}
 	@echo "INFO: FPGA programming script finished."
 
+program_fast:
+	@echo "INFO: Programming FPGA with bitstream (fast method)..."
+	${VIVADO} -mode batch -source ${SCRIPT_DIR}/program_fpga_fast.tcl -tclargs ${BITSTREAM}
+	@echo "INFO: FPGA programming script finished."
+
 # --- Erase Flash ---
 erase_flash:
 	@echo "INFO: Erasing Flash..."
@@ -328,6 +345,8 @@ clean:
 	rm -rf ${VITIS_WORKSPACE_DIR_2}
 	rm -rf vivado*.log vivado*.jou .Xil *.xsa *.log *.jou *.str
 	@echo "INFO: Clean finished."
+
+
 # Help target
 help:
 	@echo "Makefile for Vivado Project Management"
@@ -349,6 +368,8 @@ help:
 	@echo "  make vivado          - Alias for open_project"
 	@echo "  make open_vitis_ide - Open the Vitis IDE with the software workspace"
 	@echo "  make erase_flash  - Erase entire Flash memory"
+	@echo "  make reset_runs   - Reset synthesis and implementation runs"
+	@echo "  make delete_runs  - Delete synthesis and implementation runs"
 	@echo "  make help         - Show this help message"
 	@echo ""
 	@echo "Variables that can be overridden:"
