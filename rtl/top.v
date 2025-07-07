@@ -199,6 +199,13 @@ module top (
         .rst(~mmcm_locked),
         .out(rst_int)
     );
+    sync_reset #(
+        .N(4)
+    ) sync_reset_200m_inst (
+        .clk(clk_200_int),
+        .rst(~mmcm_locked),
+        .out(rst_200_int)
+    );
 
 
 
@@ -315,20 +322,30 @@ module top (
     );
 
     key #(
-        .CLK_FREQ(200_000_000)
+        .CLK_FREQ(125_000_000)
     ) key0 (
-        .clk_i  (clk_200_int),
+        .clk_i  (clk_int),
         .key_i  (key_in[0]),
         .key_cap(key_cap)
     );
-    gen_testdata #(
+    reg led_flag;
+    always @(posedge clk_int) begin
+        if (rst_int) led_flag <= 1'b0;
+        else if (key_cap) led_flag <= ~led_flag;
+        else led_flag <= led_flag;
+    end
+    assign led[1] = led_flag;
+
+    gen_testdata_2 #(
+        // gen_testdata #(
         .DATA_W(32),
         .SYS_FREQ(SYS_FREQ),
         .AD7380_DIV_FREQ(AD7380_DIV_FREQ),
-        .SAMPLE_CNT_MAX(100)
+        .SAMPLE_CNT_MAX(100),
+        .PACKET_NUM(100)
     ) gen_testdata_inst (
-        .clk       (clk_200_int),
-        .rst       (rst_200_int),
+        .clk       (clk_int),         //clk_200_int),
+        .rst       (rst_int),         //rst_200_int),
         .start_flag(key_cap),
         .data_out  (din_data_func),
         .valid_out (din_valid_func),
@@ -339,8 +356,8 @@ module top (
         .DATA_W(32)
     ) udp_top_inst (
         // user interface
-        .wr_clk  (clk_200_int),
-        .wr_rstn (~rst_200_int),
+        .wr_clk  (clk_int),          //clk_200_int),
+        .wr_rstn (~rst_int),         //~rst_200_int),
         .rd_clk  (clk_int),
         .rd_rstn (~rst_int),
         .wr_data (din_data_func),

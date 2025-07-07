@@ -97,6 +97,9 @@ reports/
 *.hex
 *.roo/
 
+*tools/
+!tools/*.exe
+
 # --- Files to KEEP (Ensure these are NOT ignored) ---
 # Generally, you don't need explicit "keep" rules unless a pattern above
 # accidentally ignores something essential. The default is to keep files.

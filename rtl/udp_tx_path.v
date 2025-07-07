@@ -33,19 +33,19 @@ module udp_tx_path #(
     parameter DATA_W = 64  // 应用层数据位宽
 ) (
     // System/Application Clock Domain
-                            input  wire              sys_clk,
-                            input  wire              sys_rst,
+                             input  wire              sys_clk,
+                             input  wire              sys_rst,
     // Application Interface (sys_clk domain)
-    (*mark_debug = "true"*) input  wire [DATA_W-1:0] din_data,
-    (*mark_debug = "true"*) input  wire              din_valid,
-    (*mark_debug = "true"*) input  wire              din_last,
-    (*mark_debug = "true"*) output wire              din_ready,
+    (*mark_debug = "false"*) input  wire [DATA_W-1:0] din_data,
+    (*mark_debug = "false"*) input  wire              din_valid,
+    (*mark_debug = "false"*) input  wire              din_last,
+    (*mark_debug = "false"*) output wire              din_ready,
     // Core Clock Domain
                             input  wire              clk,
                             input  wire              rst,
     // UDP Core Interface (clk domain)
-    (*mark_debug = "true"*) output wire              tx_udp_hdr_valid,
-    (*mark_debug = "true"*) input  wire              tx_udp_hdr_ready,
+    (*mark_debug = "false"*) output wire              tx_udp_hdr_valid,
+    (*mark_debug = "false"*) input  wire              tx_udp_hdr_ready,
                             output wire [       5:0] tx_udp_ip_dscp,
                             output wire [       1:0] tx_udp_ip_ecn,
                             output wire [       7:0] tx_udp_ip_ttl,
@@ -55,11 +55,11 @@ module udp_tx_path #(
                             output wire [      15:0] tx_udp_dest_port,
                             output wire [      15:0] tx_udp_length,
                             output wire [      15:0] tx_udp_checksum,
-    (*mark_debug = "true"*) output wire [       7:0] tx_udp_payload_axis_tdata,
-    (*mark_debug = "true"*) output wire              tx_udp_payload_axis_tvalid,
-    (*mark_debug = "true"*) input  wire              tx_udp_payload_axis_tready,
-    (*mark_debug = "true"*) output wire              tx_udp_payload_axis_tlast,
-    (*mark_debug = "true"*) output wire              tx_udp_payload_axis_tuser,
+    (*mark_debug = "false"*) output wire [       7:0] tx_udp_payload_axis_tdata,
+    (*mark_debug = "false"*) output wire              tx_udp_payload_axis_tvalid,
+    (*mark_debug = "false"*) input  wire              tx_udp_payload_axis_tready,
+    (*mark_debug = "false"*) output wire              tx_udp_payload_axis_tlast,
+    (*mark_debug = "false"*) output wire              tx_udp_payload_axis_tuser,
 
     // Configuration
     input wire [31:0] local_ip,
@@ -75,35 +75,35 @@ module udp_tx_path #(
     localparam TX_APP_FINISH = 3'd3;
 
     // 计算总字节数 - 这依赖于DATA_W的位宽
-    // (*mark_debug = "true"*)wire [15:0] bytes_per_word = DATA_W / 8;
+    // (*mark_debug = "false"*)wire [15:0] bytes_per_word = DATA_W / 8;
     localparam BYTE_PER_WORD = DATA_W / 8;
     // Internal AXI stream signals for TX path
-    (*mark_debug = "true"*)wire [               7:0] s_app_tx_axis_tdata;
-    (*mark_debug = "true"*)wire                      s_app_tx_axis_tvalid;
-    (*mark_debug = "true"*)wire                      s_app_tx_axis_tready;
-    (*mark_debug = "true"*)wire                      s_app_tx_axis_tlast;
-    (*mark_debug = "true"*)wire                      s_app_tx_start;
-    (*mark_debug = "true"*)wire                      s_app_tx_start_expand;
-    (*mark_debug = "true"*)wire                      s_app_tx_start_pulse;
-    (*mark_debug = "true"*)reg  [              15:0] s_app_tx_payload_len;
-    (*mark_debug = "true"*)wire [              15:0] s_app_tx_payload_len_reg;
+    (*mark_debug = "false"*)wire [               7:0] s_app_tx_axis_tdata;
+    (*mark_debug = "false"*)wire                      s_app_tx_axis_tvalid;
+    (*mark_debug = "false"*)wire                      s_app_tx_axis_tready;
+    (*mark_debug = "false"*)wire                      s_app_tx_axis_tlast;
+    (*mark_debug = "false"*)wire                      s_app_tx_start;
+    (*mark_debug = "false"*)wire                      s_app_tx_start_expand;
+    (*mark_debug = "false"*)wire                      s_app_tx_start_pulse;
+    (*mark_debug = "false"*)reg  [              15:0] s_app_tx_payload_len;
+    (*mark_debug = "false"*)wire [              15:0] s_app_tx_payload_len_reg;
 
     // TX path FIFO (App -> Core)
-    (*mark_debug = "true"*)wire [               7:0] tx_fifo_out_payload_axis_tdata;
-    (*mark_debug = "true"*)wire                      tx_fifo_out_payload_axis_tvalid;
-    (*mark_debug = "true"*)wire                      tx_fifo_out_payload_axis_tready;
-    (*mark_debug = "true"*)wire                      tx_fifo_out_payload_axis_tlast;
-    (*mark_debug = "true"*)wire                      tx_fifo_out_payload_axis_tuser;
+    (*mark_debug = "false"*)wire [               7:0] tx_fifo_out_payload_axis_tdata;
+    (*mark_debug = "false"*)wire                      tx_fifo_out_payload_axis_tvalid;
+    (*mark_debug = "false"*)wire                      tx_fifo_out_payload_axis_tready;
+    (*mark_debug = "false"*)wire                      tx_fifo_out_payload_axis_tlast;
+    (*mark_debug = "false"*)wire                      tx_fifo_out_payload_axis_tuser;
 
     // ----------------------------------------------------------------
     // TX 路径: din_* -> internal AXI-Stream
     // ----------------------------------------------------------------
-    (*mark_debug = "true"*)reg  [               2:0] tx_app_state;
-    (*mark_debug = "true"*)reg  [              15:0] tx_data_counter;  // 最多支持64K个字节
-    (*mark_debug = "true"*)reg  [              15:0] tx_bytes_to_send;  // 总共要发送的字节数
-    (*mark_debug = "true"*)reg  [        DATA_W-1:0] tx_data_buffer;
-    (*mark_debug = "true"*)reg  [               3:0] tx_byte_index;  // 最多支持128位数据宽度
-    (*mark_debug = "true"*)reg  [$clog2(DATA_W/8):0] byte_count;
+    (*mark_debug = "false"*)reg  [               2:0] tx_app_state;
+    (*mark_debug = "false"*)reg  [              15:0] tx_data_counter;  // 最多支持64K个字节
+    (*mark_debug = "false"*)reg  [              15:0] tx_bytes_to_send;  // 总共要发送的字节数
+    (*mark_debug = "false"*)reg  [        DATA_W-1:0] tx_data_buffer;
+    (*mark_debug = "false"*)reg  [               3:0] tx_byte_index;  // 最多支持128位数据宽度
+    (*mark_debug = "false"*)reg  [$clog2(DATA_W/8):0] byte_count;
     //**********************************************************************************************
     //应用层->fifo
     //时钟域:sys_clk
@@ -176,7 +176,8 @@ module udp_tx_path #(
 
     // 内部AXI-Stream接口控制
     assign s_app_tx_axis_tvalid = byte_count < BYTE_PER_WORD;
-    assign s_app_tx_axis_tdata  = tx_data_buffer[8*byte_count+:8];
+    // assign s_app_tx_axis_tdata  = tx_data_buffer[8*byte_count+:8];
+    assign s_app_tx_axis_tdata  = tx_data_buffer[8*(BYTE_PER_WORD-byte_count)-1-:8];
     assign s_app_tx_axis_tlast  = (tx_app_state == TX_APP_DATA) && (byte_count == BYTE_PER_WORD - 1);
     assign s_app_tx_start       = (tx_app_state == TX_APP_FINISH);
 
@@ -198,13 +199,13 @@ module udp_tx_path #(
     localparam TX_SEND_HEADER = 2'd1;
     localparam TX_SEND_PAYLOAD = 2'd2;
     localparam TX_SEND_NOP = 2'd3;
-    (*mark_debug = "true"*)reg  [ 1:0] tx_state_reg = TX_IDLE;
-    (*mark_debug = "true"*)reg  [15:0] tx_payload_len_reg;
+    (*mark_debug = "false"*)reg  [ 1:0] tx_state_reg = TX_IDLE;
+    (*mark_debug = "false"*)reg  [15:0] tx_payload_len_reg;
     // TX 控制同步 (sys_clk -> clk)
-    (*mark_debug = "true"*)reg  [15:0] s_app_tx_payload_len_sync1 = 0;
-    (*mark_debug = "true"*)reg  [15:0] s_app_tx_payload_len_sync2 = 0;
-    (*mark_debug = "true"*)reg  [15:0] s_app_tx_payload_len_sync3 = 0;
-    (*mark_debug = "true"*)wire        tx_start_pulse;
+    (*mark_debug = "false"*)reg  [15:0] s_app_tx_payload_len_sync1 = 0;
+    (*mark_debug = "false"*)reg  [15:0] s_app_tx_payload_len_sync2 = 0;
+    (*mark_debug = "false"*)reg  [15:0] s_app_tx_payload_len_sync3 = 0;
+    (*mark_debug = "false"*)wire        tx_start_pulse;
 
     // 同步负载长度
     //! 跨时钟域处理 sysclock->phyclock
@@ -221,15 +222,16 @@ module udp_tx_path #(
             s_app_tx_payload_len_sync1 <= 16'd0;
             s_app_tx_payload_len_sync2 <= 16'd0;
             s_app_tx_payload_len_sync3 <= 16'd0;
-        end else if (s_app_tx_start_pulse) begin
+        // end else if (s_app_tx_start_pulse) begin
+        end else begin
             s_app_tx_payload_len_sync1 <= s_app_tx_payload_len;
             s_app_tx_payload_len_sync2 <= s_app_tx_payload_len_sync1;
             s_app_tx_payload_len_sync3 <= s_app_tx_payload_len_sync2;
         end
     end
-
     assign tx_start_pulse = s_app_tx_start_pulse;
     assign s_app_tx_payload_len_reg = s_app_tx_payload_len_sync3;
+
 
     always @(posedge clk) begin
         if (rst) begin
