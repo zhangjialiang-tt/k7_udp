@@ -36,34 +36,34 @@ module udp_rx_path #(
                             input  wire              sys_clk,
                             input  wire              sys_rst,
     // Application Interface (sys_clk domain)
-    (*mark_debug = "true"*) output wire [DATA_W-1:0] dout_data,
-    (*mark_debug = "true"*) output wire              dout_valid,
-    (*mark_debug = "true"*) output wire              dout_last,
+    (*mark_debug = "false"*) output wire [DATA_W-1:0] dout_data,
+    (*mark_debug = "false"*) output wire              dout_valid,
+    (*mark_debug = "false"*) output wire              dout_last,
                             input  wire              dout_ready,
     // Core Clock Domain
                             input  wire              clk,
                             input  wire              rst,
     // UDP Core Interface (clk domain)
-    (*mark_debug = "true"*) output wire              rx_udp_hdr_ready,
-    (*mark_debug = "true"*) input  wire              rx_udp_hdr_valid,
-    (*mark_debug = "true"*) input  wire [      31:0] rx_udp_ip_source_ip,
-    (*mark_debug = "true"*) input  wire [      31:0] rx_udp_ip_dest_ip,
-    (*mark_debug = "true"*) input  wire [      15:0] rx_udp_source_port,
-    (*mark_debug = "true"*) input  wire [      15:0] rx_udp_dest_port,
-    (*mark_debug = "true"*) input  wire [       7:0] rx_udp_payload_axis_tdata,
-    (*mark_debug = "true"*) input  wire              rx_udp_payload_axis_tvalid,
-    (*mark_debug = "true"*) output wire              rx_udp_payload_axis_tready,
-    (*mark_debug = "true"*) input  wire              rx_udp_payload_axis_tlast,
-    (*mark_debug = "true"*) input  wire              rx_udp_payload_axis_tuser,
+    (*mark_debug = "false"*) output wire              rx_udp_hdr_ready,
+    (*mark_debug = "false"*) input  wire              rx_udp_hdr_valid,
+    (*mark_debug = "false"*) input  wire [      31:0] rx_udp_ip_source_ip,
+    (*mark_debug = "false"*) input  wire [      31:0] rx_udp_ip_dest_ip,
+    (*mark_debug = "false"*) input  wire [      15:0] rx_udp_source_port,
+    (*mark_debug = "false"*) input  wire [      15:0] rx_udp_dest_port,
+    (*mark_debug = "false"*) input  wire [       7:0] rx_udp_payload_axis_tdata,
+    (*mark_debug = "false"*) input  wire              rx_udp_payload_axis_tvalid,
+    (*mark_debug = "false"*) output wire              rx_udp_payload_axis_tready,
+    (*mark_debug = "false"*) input  wire              rx_udp_payload_axis_tlast,
+    (*mark_debug = "false"*) input  wire              rx_udp_payload_axis_tuser,
     // Metadata output (sys_clk domain)
-    // (*mark_debug = "true"*) output wire [      31:0] m_app_rx_src_ip,
-    // (*mark_debug = "true"*) output wire [      15:0] m_app_rx_src_port,
-    // (*mark_debug = "true"*) output wire              m_app_rx_valid,
+    // (*mark_debug = "false"*) output wire [      31:0] m_app_rx_src_ip,
+    // (*mark_debug = "false"*) output wire [      15:0] m_app_rx_src_port,
+    // (*mark_debug = "false"*) output wire              m_app_rx_valid,
     // Configuration
-    (*mark_debug = "true"*) input  wire [      31:0] local_ip,
-    (*mark_debug = "true"*) input  wire [      31:0] dest_ip,
-    (*mark_debug = "true"*) input  wire [      15:0] local_port,
-    (*mark_debug = "true"*) input  wire [      15:0] dest_port
+    (*mark_debug = "false"*) input  wire [      31:0] local_ip,
+    (*mark_debug = "false"*) input  wire [      31:0] dest_ip,
+    (*mark_debug = "false"*) input  wire [      15:0] local_port,
+    (*mark_debug = "false"*) input  wire [      15:0] dest_port
 );
     // Application-side state machine
     localparam RX_APP_IDLE = 2'd0;
@@ -73,30 +73,30 @@ module udp_rx_path #(
     localparam BYTES_PER_WORD = DATA_W / 8;
 
     // Internal AXI stream signals for RX path
-    (*mark_debug = "true"*)wire [       7:0] m_app_rx_axis_tdata;
-    (*mark_debug = "true"*)wire              m_app_rx_axis_tvalid;
-    (*mark_debug = "true"*)wire              m_app_rx_axis_tready;
-    (*mark_debug = "true"*)wire              m_app_rx_axis_tlast;
+    (*mark_debug = "false"*)wire [       7:0] m_app_rx_axis_tdata;
+    (*mark_debug = "false"*)wire              m_app_rx_axis_tvalid;
+    (*mark_debug = "false"*)wire              m_app_rx_axis_tready;
+    (*mark_debug = "false"*)wire              m_app_rx_axis_tlast;
 
     // RX path FIFOs (Core -> App)
-    (*mark_debug = "true"*)wire [       7:0] rx_fifo_in_payload_axis_tdata;
-    (*mark_debug = "true"*)wire              rx_fifo_in_payload_axis_tvalid;
-    (*mark_debug = "true"*)wire              rx_fifo_in_payload_axis_tready;
-    (*mark_debug = "true"*)wire              rx_fifo_in_payload_axis_tlast;
-    (*mark_debug = "true"*)wire              rx_fifo_in_payload_axis_tuser;
-    (*mark_debug = "true"*)wire [       7:0] rx_fifo_out_payload_axis_tdata;
-    (*mark_debug = "true"*)wire              rx_fifo_out_payload_axis_tvalid;
-    (*mark_debug = "true"*)wire              rx_fifo_out_payload_axis_tready;
-    (*mark_debug = "true"*)wire              rx_fifo_out_payload_axis_tlast;
+    (*mark_debug = "false"*)wire [       7:0] rx_fifo_in_payload_axis_tdata;
+    (*mark_debug = "false"*)wire              rx_fifo_in_payload_axis_tvalid;
+    (*mark_debug = "false"*)wire              rx_fifo_in_payload_axis_tready;
+    (*mark_debug = "false"*)wire              rx_fifo_in_payload_axis_tlast;
+    (*mark_debug = "false"*)wire              rx_fifo_in_payload_axis_tuser;
+    (*mark_debug = "false"*)wire [       7:0] rx_fifo_out_payload_axis_tdata;
+    (*mark_debug = "false"*)wire              rx_fifo_out_payload_axis_tvalid;
+    (*mark_debug = "false"*)wire              rx_fifo_out_payload_axis_tready;
+    (*mark_debug = "false"*)wire              rx_fifo_out_payload_axis_tlast;
 
-    (*mark_debug = "true"*)wire              packet_match;
-    (*mark_debug = "true"*)reg               rx_drop_packet_reg;
-    (*mark_debug = "true"*)reg               rx_packet_active_reg;
-    (*mark_debug = "true"*)reg  [DATA_W-1:0] rx_data_buffer;
-    (*mark_debug = "true"*)reg  [       3:0] rx_byte_index;
-    (*mark_debug = "true"*)reg  [       1:0] rx_app_state;
-    (*mark_debug = "true"*)reg               rx_output_valid;
-    (*mark_debug = "true"*)reg               rx_output_last;
+    (*mark_debug = "false"*)wire              packet_match;
+    (*mark_debug = "false"*)reg               rx_drop_packet_reg;
+    (*mark_debug = "false"*)reg               rx_packet_active_reg;
+    (*mark_debug = "false"*)reg  [DATA_W-1:0] rx_data_buffer;
+    (*mark_debug = "false"*)reg  [       3:0] rx_byte_index;
+    (*mark_debug = "false"*)reg  [       1:0] rx_app_state;
+    (*mark_debug = "false"*)reg               rx_output_valid;
+    (*mark_debug = "false"*)reg               rx_output_last;
 
     // ----------------------------------------------------------------
     // Receive Path Control Logic (clk domain)

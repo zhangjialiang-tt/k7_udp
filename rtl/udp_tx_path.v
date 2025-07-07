@@ -250,7 +250,8 @@ module udp_tx_path #(
                     end
                 end
                 TX_SEND_PAYLOAD: begin
-                    if (tx_udp_payload_axis_tvalid && tx_udp_payload_axis_tready && tx_udp_payload_axis_tlast) begin
+                    // if (tx_udp_payload_axis_tvalid && tx_udp_payload_axis_tready && tx_udp_payload_axis_tlast) begin
+                    if (tx_udp_payload_axis_tvalid && tx_udp_payload_axis_tlast) begin
                         tx_state_reg <= TX_SEND_NOP;
                     end
                 end
@@ -290,7 +291,7 @@ module udp_tx_path #(
         .LAST_ENABLE(1),
         .ID_ENABLE(0),
         .DEST_ENABLE(0),
-        .USER_ENABLE(1),
+        .USER_ENABLE(0),
         .FRAME_FIFO(1)
     ) tx_payload_fifo (
         .s_clk                (sys_clk),

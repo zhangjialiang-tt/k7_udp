@@ -70,7 +70,7 @@ module top (
 );
 
     localparam SYS_FREQ = 125_000_000;
-    localparam AD7380_DIV_FREQ = 47;
+    localparam AD7380_DIV_FREQ = 47*2;
     localparam UPLOAD_RATE = 10;
     // Clock and reset
 
@@ -97,14 +97,14 @@ module top (
     wire [7:0] sw_int;
     assign sw = 8'd0;
     wire        uart_rxd_int;
-    (*mark_debug = "true"*)wire [31:0] din_data_func;
-    (*mark_debug = "true"*)wire        din_valid_func;
-    (*mark_debug = "true"*)wire        din_last_func;
-    (*mark_debug = "true"*)wire        dout_ready_func;
-    (*mark_debug = "true"*)wire [31:0] dout_data_func;
-    (*mark_debug = "true"*)wire        dout_valid_func;
-    (*mark_debug = "true"*)wire        dout_last_func;
-    (*mark_debug = "true"*)wire        key_cap;
+    (*mark_debug = "false"*)wire [31:0] din_data_func;
+    (*mark_debug = "false"*)wire        din_valid_func;
+    (*mark_debug = "false"*)wire        din_last_func;
+    (*mark_debug = "false"*)wire        dout_ready_func;
+    (*mark_debug = "false"*)wire [31:0] dout_data_func;
+    (*mark_debug = "false"*)wire        dout_valid_func;
+    (*mark_debug = "false"*)wire        dout_last_func;
+    (*mark_debug = "false"*)wire        key_cap;
     // MMCM instance
     // 100 MHz in, 125 MHz out
     // PFD range: 10 MHz to 550 MHz
@@ -320,32 +320,40 @@ module top (
         .i_Rst_n  (~rst_int),
         .o_led    (led[0])
     );
+    led_blink #(
+        .LED_NUM (1),
+        .STS_FREQ(200_000_000)
+    ) led1_blink_inst (
+        .i_Sys_clk(clk_200_int),
+        .i_Rst_n  (~rst_200_int),
+        .o_led    (led[1])
+    );
 
     key #(
-        .CLK_FREQ(125_000_000)
+        .CLK_FREQ(200_000_000)
     ) key0 (
-        .clk_i  (clk_int),
+        .clk_i  (clk_200_int),
         .key_i  (key_in[0]),
         .key_cap(key_cap)
     );
     reg led_flag;
-    always @(posedge clk_int) begin
-        if (rst_int) led_flag <= 1'b0;
+    always @(posedge clk_200_int) begin
+        if (rst_200_int) led_flag <= 1'b0;
         else if (key_cap) led_flag <= ~led_flag;
         else led_flag <= led_flag;
     end
-    assign led[1] = led_flag;
+    assign led[2] = led_flag;
 
     gen_testdata_2 #(
         // gen_testdata #(
         .DATA_W(32),
-        .SYS_FREQ(SYS_FREQ),
+        .SYS_FREQ(200_000_000),
         .AD7380_DIV_FREQ(AD7380_DIV_FREQ),
         .SAMPLE_CNT_MAX(100),
         .PACKET_NUM(100)
     ) gen_testdata_inst (
-        .clk       (clk_int),         //clk_200_int),
-        .rst       (rst_int),         //rst_200_int),
+        .clk       (clk_200_int),
+        .rst       (rst_200_int),
         .start_flag(key_cap),
         .data_out  (din_data_func),
         .valid_out (din_valid_func),
@@ -356,8 +364,8 @@ module top (
         .DATA_W(32)
     ) udp_top_inst (
         // user interface
-        .wr_clk  (clk_int),          //clk_200_int),
-        .wr_rstn (~rst_int),         //~rst_200_int),
+        .wr_clk  (clk_200_int),
+        .wr_rstn (~rst_200_int),
         .rd_clk  (clk_int),
         .rd_rstn (~rst_int),
         .wr_data (din_data_func),

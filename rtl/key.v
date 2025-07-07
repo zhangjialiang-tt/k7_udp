@@ -36,9 +36,9 @@ parameter KEY_S2 = 2'd2;
 parameter KEY_S3 = 2'd3;
 
 reg [24:0] cnt10ms = 25'd0;
-(*mark_debug = "true"*) reg [1:0] key_s = 2'b0;
-(*mark_debug = "true"*) reg [1:0] key_s_r = 2'b0;
-(*mark_debug = "true"*) wire en_10ms ;
+(*mark_debug = "false"*) reg [1:0] key_s = 2'b0;
+(*mark_debug = "false"*) reg [1:0] key_s_r = 2'b0;
+(*mark_debug = "false"*) wire en_10ms ;
  
 assign en_10ms = (cnt10ms == CNT_10MS);
 assign key_cap = (key_s==KEY_S2)&&(key_s_r==KEY_S1);

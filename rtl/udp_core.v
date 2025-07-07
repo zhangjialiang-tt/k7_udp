@@ -47,33 +47,33 @@ module udp_core #(
     output wire       phy_reset_n,
 
     // UDP RX Interface (from network to application, clk domain)
-    (*mark_debug = "true"*)output wire        rx_udp_hdr_valid,
-    (*mark_debug = "true"*)input  wire        rx_udp_hdr_ready,
-    (*mark_debug = "true"*)output wire [47:0] rx_udp_eth_dest_mac,
-    (*mark_debug = "true"*)output wire [47:0] rx_udp_eth_src_mac,
-    (*mark_debug = "true"*)output wire [15:0] rx_udp_eth_type,
-    (*mark_debug = "true"*)output wire [ 3:0] rx_udp_ip_version,
-    (*mark_debug = "true"*)output wire [ 3:0] rx_udp_ip_ihl,
-    (*mark_debug = "true"*)output wire [ 5:0] rx_udp_ip_dscp,
-    (*mark_debug = "true"*)output wire [ 1:0] rx_udp_ip_ecn,
-    (*mark_debug = "true"*)output wire [15:0] rx_udp_ip_length,
-    (*mark_debug = "true"*)output wire [15:0] rx_udp_ip_identification,
-    (*mark_debug = "true"*)output wire [ 2:0] rx_udp_ip_flags,
-    (*mark_debug = "true"*)output wire [12:0] rx_udp_ip_fragment_offset,
-    (*mark_debug = "true"*)output wire [ 7:0] rx_udp_ip_ttl,
-    (*mark_debug = "true"*)output wire [ 7:0] rx_udp_ip_protocol,
-    (*mark_debug = "true"*)output wire [15:0] rx_udp_ip_header_checksum,
-    (*mark_debug = "true"*)output wire [31:0] rx_udp_ip_source_ip,
-    (*mark_debug = "true"*)output wire [31:0] rx_udp_ip_dest_ip,
-    (*mark_debug = "true"*)output wire [15:0] rx_udp_source_port,
-    (*mark_debug = "true"*)output wire [15:0] rx_udp_dest_port,
-    (*mark_debug = "true"*)output wire [15:0] rx_udp_length,
-    (*mark_debug = "true"*)output wire [15:0] rx_udp_checksum,
-    (*mark_debug = "true"*)output wire [ 7:0] rx_udp_payload_axis_tdata,
-    (*mark_debug = "true"*)output wire        rx_udp_payload_axis_tvalid,
-    (*mark_debug = "true"*)input  wire        rx_udp_payload_axis_tready,
-    (*mark_debug = "true"*)output wire        rx_udp_payload_axis_tlast,
-    (*mark_debug = "true"*)output wire        rx_udp_payload_axis_tuser,
+    (*mark_debug = "false"*)output wire        rx_udp_hdr_valid,
+    (*mark_debug = "false"*)input  wire        rx_udp_hdr_ready,
+    (*mark_debug = "false"*)output wire [47:0] rx_udp_eth_dest_mac,
+    (*mark_debug = "false"*)output wire [47:0] rx_udp_eth_src_mac,
+    (*mark_debug = "false"*)output wire [15:0] rx_udp_eth_type,
+    (*mark_debug = "false"*)output wire [ 3:0] rx_udp_ip_version,
+    (*mark_debug = "false"*)output wire [ 3:0] rx_udp_ip_ihl,
+    (*mark_debug = "false"*)output wire [ 5:0] rx_udp_ip_dscp,
+    (*mark_debug = "false"*)output wire [ 1:0] rx_udp_ip_ecn,
+    (*mark_debug = "false"*)output wire [15:0] rx_udp_ip_length,
+    (*mark_debug = "false"*)output wire [15:0] rx_udp_ip_identification,
+    (*mark_debug = "false"*)output wire [ 2:0] rx_udp_ip_flags,
+    (*mark_debug = "false"*)output wire [12:0] rx_udp_ip_fragment_offset,
+    (*mark_debug = "false"*)output wire [ 7:0] rx_udp_ip_ttl,
+    (*mark_debug = "false"*)output wire [ 7:0] rx_udp_ip_protocol,
+    (*mark_debug = "false"*)output wire [15:0] rx_udp_ip_header_checksum,
+    (*mark_debug = "false"*)output wire [31:0] rx_udp_ip_source_ip,
+    (*mark_debug = "false"*)output wire [31:0] rx_udp_ip_dest_ip,
+    (*mark_debug = "false"*)output wire [15:0] rx_udp_source_port,
+    (*mark_debug = "false"*)output wire [15:0] rx_udp_dest_port,
+    (*mark_debug = "false"*)output wire [15:0] rx_udp_length,
+    (*mark_debug = "false"*)output wire [15:0] rx_udp_checksum,
+    (*mark_debug = "false"*)output wire [ 7:0] rx_udp_payload_axis_tdata,
+    (*mark_debug = "false"*)output wire        rx_udp_payload_axis_tvalid,
+    (*mark_debug = "false"*)input  wire        rx_udp_payload_axis_tready,
+    (*mark_debug = "false"*)output wire        rx_udp_payload_axis_tlast,
+    (*mark_debug = "false"*)output wire        rx_udp_payload_axis_tuser,
 
     // UDP TX Interface (from application to network, clk domain)
     input  wire        tx_udp_hdr_valid,
@@ -101,11 +101,11 @@ module udp_core #(
 );
 
     // AXI between MAC and Ethernet modules
-    (*mark_debug = "true"*)wire [ 7:0] rx_axis_tdata;
-    (*mark_debug = "true"*)wire        rx_axis_tvalid;
-    (*mark_debug = "true"*)wire        rx_axis_tready;
-    (*mark_debug = "true"*)wire        rx_axis_tlast;
-    (*mark_debug = "true"*)wire        rx_axis_tuser;
+    (*mark_debug = "false"*)wire [ 7:0] rx_axis_tdata;
+    (*mark_debug = "false"*)wire        rx_axis_tvalid;
+    (*mark_debug = "false"*)wire        rx_axis_tready;
+    (*mark_debug = "false"*)wire        rx_axis_tlast;
+    (*mark_debug = "false"*)wire        rx_axis_tuser;
 
     wire [ 7:0] tx_axis_tdata;
     wire        tx_axis_tvalid;
@@ -114,16 +114,16 @@ module udp_core #(
     wire        tx_axis_tuser;
 
     // Ethernet frame between Ethernet modules and UDP stack
-    (*mark_debug = "true"*)wire        rx_eth_hdr_ready;
-    (*mark_debug = "true"*)wire        rx_eth_hdr_valid;
-    (*mark_debug = "true"*)wire [47:0] rx_eth_dest_mac;
-    (*mark_debug = "true"*)wire [47:0] rx_eth_src_mac;
-    (*mark_debug = "true"*)wire [15:0] rx_eth_type;
-    (*mark_debug = "true"*)wire [ 7:0] rx_eth_payload_axis_tdata;
-    (*mark_debug = "true"*)wire        rx_eth_payload_axis_tvalid;
-    (*mark_debug = "true"*)wire        rx_eth_payload_axis_tready;
-    (*mark_debug = "true"*)wire        rx_eth_payload_axis_tlast;
-    (*mark_debug = "true"*)wire        rx_eth_payload_axis_tuser;
+    (*mark_debug = "false"*)wire        rx_eth_hdr_ready;
+    (*mark_debug = "false"*)wire        rx_eth_hdr_valid;
+    (*mark_debug = "false"*)wire [47:0] rx_eth_dest_mac;
+    (*mark_debug = "false"*)wire [47:0] rx_eth_src_mac;
+    (*mark_debug = "false"*)wire [15:0] rx_eth_type;
+    (*mark_debug = "false"*)wire [ 7:0] rx_eth_payload_axis_tdata;
+    (*mark_debug = "false"*)wire        rx_eth_payload_axis_tvalid;
+    (*mark_debug = "false"*)wire        rx_eth_payload_axis_tready;
+    (*mark_debug = "false"*)wire        rx_eth_payload_axis_tlast;
+    (*mark_debug = "false"*)wire        rx_eth_payload_axis_tuser;
 
     wire        tx_eth_hdr_ready;
     wire        tx_eth_hdr_valid;
@@ -137,29 +137,29 @@ module udp_core #(
     wire        tx_eth_payload_axis_tuser;
 
     // IP frame connections
-    (*mark_debug = "true"*)wire        rx_ip_hdr_valid;
-    (*mark_debug = "true"*)wire        rx_ip_hdr_ready;
-    (*mark_debug = "true"*)wire [47:0] rx_ip_eth_dest_mac;
-    (*mark_debug = "true"*)wire [47:0] rx_ip_eth_src_mac;
-    (*mark_debug = "true"*)wire [15:0] rx_ip_eth_type;
-    (*mark_debug = "true"*)wire [ 3:0] rx_ip_version;
-    (*mark_debug = "true"*)wire [ 3:0] rx_ip_ihl;
-    (*mark_debug = "true"*)wire [ 5:0] rx_ip_dscp;
-    (*mark_debug = "true"*)wire [ 1:0] rx_ip_ecn;
-    (*mark_debug = "true"*)wire [15:0] rx_ip_length;
-    (*mark_debug = "true"*)wire [15:0] rx_ip_identification;
-    (*mark_debug = "true"*)wire [ 2:0] rx_ip_flags;
-    (*mark_debug = "true"*)wire [12:0] rx_ip_fragment_offset;
-    (*mark_debug = "true"*)wire [ 7:0] rx_ip_ttl;
-    (*mark_debug = "true"*)wire [ 7:0] rx_ip_protocol;
-    (*mark_debug = "true"*)wire [15:0] rx_ip_header_checksum;
-    (*mark_debug = "true"*)wire [31:0] rx_ip_source_ip;
-    (*mark_debug = "true"*)wire [31:0] rx_ip_dest_ip;
-    (*mark_debug = "true"*)wire [ 7:0] rx_ip_payload_axis_tdata;
-    (*mark_debug = "true"*)wire        rx_ip_payload_axis_tvalid;
-    (*mark_debug = "true"*)wire        rx_ip_payload_axis_tready;
-    (*mark_debug = "true"*)wire        rx_ip_payload_axis_tlast;
-    (*mark_debug = "true"*)wire        rx_ip_payload_axis_tuser;
+    (*mark_debug = "false"*)wire        rx_ip_hdr_valid;
+    (*mark_debug = "false"*)wire        rx_ip_hdr_ready;
+    (*mark_debug = "false"*)wire [47:0] rx_ip_eth_dest_mac;
+    (*mark_debug = "false"*)wire [47:0] rx_ip_eth_src_mac;
+    (*mark_debug = "false"*)wire [15:0] rx_ip_eth_type;
+    (*mark_debug = "false"*)wire [ 3:0] rx_ip_version;
+    (*mark_debug = "false"*)wire [ 3:0] rx_ip_ihl;
+    (*mark_debug = "false"*)wire [ 5:0] rx_ip_dscp;
+    (*mark_debug = "false"*)wire [ 1:0] rx_ip_ecn;
+    (*mark_debug = "false"*)wire [15:0] rx_ip_length;
+    (*mark_debug = "false"*)wire [15:0] rx_ip_identification;
+    (*mark_debug = "false"*)wire [ 2:0] rx_ip_flags;
+    (*mark_debug = "false"*)wire [12:0] rx_ip_fragment_offset;
+    (*mark_debug = "false"*)wire [ 7:0] rx_ip_ttl;
+    (*mark_debug = "false"*)wire [ 7:0] rx_ip_protocol;
+    (*mark_debug = "false"*)wire [15:0] rx_ip_header_checksum;
+    (*mark_debug = "false"*)wire [31:0] rx_ip_source_ip;
+    (*mark_debug = "false"*)wire [31:0] rx_ip_dest_ip;
+    (*mark_debug = "false"*)wire [ 7:0] rx_ip_payload_axis_tdata;
+    (*mark_debug = "false"*)wire        rx_ip_payload_axis_tvalid;
+    (*mark_debug = "false"*)wire        rx_ip_payload_axis_tready;
+    (*mark_debug = "false"*)wire        rx_ip_payload_axis_tlast;
+    (*mark_debug = "false"*)wire        rx_ip_payload_axis_tuser;
 
     wire        tx_ip_hdr_valid;
     wire        tx_ip_hdr_ready;
